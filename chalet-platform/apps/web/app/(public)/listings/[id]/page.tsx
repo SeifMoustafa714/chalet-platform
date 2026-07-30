@@ -13,22 +13,22 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
 
   return (
     <article className="space-y-4">
-      <h1 className="text-2xl font-bold">{listing.title}</h1>
-      <p className="text-gray-500">{listing.location} · up to {listing.maxGuests} guests</p>
+      {listing.verifiedFlag && <span className="badge-verified">✓ Verified</span>}
+      <h1 className="font-display text-3xl font-medium text-ink">{listing.title}</h1>
+      <p className="text-ink/60">{listing.location} · up to {listing.maxGuests} guests</p>
       <PriceRange pricing={listing.pricing} />
-      <p className="whitespace-pre-line">{listing.description}</p>
-      <a
-        href={`https://wa.me/20${''}?text=${encodeURIComponent(`I'm interested in ${listing.title}`)}`}
-        className="inline-block rounded-lg bg-emerald-600 px-4 py-2 text-white"
-      >
-        Ask on WhatsApp
-      </a>
-      <a
-        href={`/bookings/new?listingId=${listing.id}`}
-        className="ml-3 inline-block rounded-lg bg-sky-600 px-4 py-2 text-white"
-      >
-        Request to book
-      </a>
+      <p className="whitespace-pre-line text-ink/80">{listing.description}</p>
+      <div className="flex gap-3 pt-2">
+        
+          href={`https://wa.me/20${''}?text=${encodeURIComponent(`I'm interested in ${listing.title}`)}`}
+          className="btn-accent"
+        >
+          Ask on WhatsApp
+        </a>
+        <a href={`/bookings/new?listingId=${listing.id}`} className="btn-primary">
+          Request to book
+        </a>
+      </div>
     </article>
   );
 }
