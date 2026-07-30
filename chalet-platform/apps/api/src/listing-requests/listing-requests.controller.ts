@@ -15,14 +15,14 @@ export class ListingRequestsController {
 
   // Users and brokers submit new requests. Never goes live directly.
   @Post()
-  @Roles(Role.USER, Role.BROKER)
+  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
   create(@CurrentUser() user: { userId: string }, @Body() body: unknown) {
     const dto = CreateListingRequestSchema.parse(body);
     return this.service.create(user.userId, dto);
   }
 
   @Get('mine')
-  @Roles(Role.USER, Role.BROKER)
+  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
   findMine(@CurrentUser() user: { userId: string }) {
     return this.service.findMine(user.userId);
   }
