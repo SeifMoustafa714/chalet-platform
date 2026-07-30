@@ -28,7 +28,7 @@ export default function AdminListingRequestsPage() {
               <td>{r.location}</td>
               <td>{new Date(r.createdAt).toLocaleDateString()}</td>
               <td>
-                <Link href={`/admin/listing-requests/${r.id}`} className="text-sky-600">
+                <Link href={`/listing-requests/${r.id}`} className="text-sky-600">
                   Review →
                 </Link>
               </td>
