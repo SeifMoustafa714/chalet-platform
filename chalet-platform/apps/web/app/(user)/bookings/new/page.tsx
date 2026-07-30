@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '../../../../lib/api';
 
-export default function NewBookingPage() {
+function NewBookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const listingId = searchParams.get('listingId') ?? '';
@@ -83,5 +83,13 @@ export default function NewBookingPage() {
         {submitting ? 'Sending…' : 'Send request'}
       </button>
     </form>
+  );
+}
+
+export default function NewBookingPage() {
+  return (
+    <Suspense fallback={<p>Loading…</p>}>
+      <NewBookingForm />
+    </Suspense>
   );
 }
