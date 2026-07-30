@@ -11,6 +11,8 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
   const listing = await getListing(params.id);
   if (!listing) return <p>Listing not found.</p>;
 
+  const whatsappUrl = `https://wa.me/20?text=${encodeURIComponent(`I'm interested in ${listing.title}`)}`;
+
   return (
     <article className="space-y-4">
       {listing.verifiedFlag && <span className="badge-verified">✓ Verified</span>}
@@ -19,15 +21,8 @@ export default async function ListingDetailPage({ params }: { params: { id: stri
       <PriceRange pricing={listing.pricing} />
       <p className="whitespace-pre-line text-ink/80">{listing.description}</p>
       <div className="flex gap-3 pt-2">
-        
-          href={`https://wa.me/20${''}?text=${encodeURIComponent(`I'm interested in ${listing.title}`)}`}
-          className="btn-accent"
-        >
-          Ask on WhatsApp
-        </a>
-        <a href={`/bookings/new?listingId=${listing.id}`} className="btn-primary">
-          Request to book
-        </a>
+        <a href={whatsappUrl} className="btn-accent">Ask on WhatsApp</a>
+        <a href={`/bookings/new?listingId=${listing.id}`} className="btn-primary">Request to book</a>
       </div>
     </article>
   );
