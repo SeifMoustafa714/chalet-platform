@@ -15,6 +15,28 @@ if (typeof window !== 'undefined') {
 
 export const fetcher = (url: string) => api.get(url).then((res) => res.data);
 
+export interface CurrentUser {
+  userId: string;
+  email: string;
+  role: 'USER' | 'BROKER' | 'ADMIN';
+}
+
+export function getCurrentUser(): CurrentUser | null {
+  if (typeof window === 'undefined') return null;
+  const token = localStorage.getItem('accessToken');
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return { userId: payload.sub, email: payload.email, role: payload.role };
+  } catch {
+    return null;
+  }
+}
+
+export function logout() {
+  localStorage.removeItem('accessToken');
+  window.location.href = '/login';
+}
 export type Region = 'north_coast' | 'ain_sokhna' | 'marsa_matrouh' | 'sharm';
 
 export interface Listing {
