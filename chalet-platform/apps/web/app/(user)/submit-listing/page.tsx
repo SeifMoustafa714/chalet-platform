@@ -31,7 +31,7 @@ export default function SubmitListingPage() {
       });
       router.push('/my-requests');
     } catch (err: any) {
-      setError(err?.response?.data?.message ?? 'Failed to submit. Please check your inputs.');
+      const msg = err?.response?.data?.message;       setError(Array.isArray(msg) ? msg.join(' · ') : msg ?? 'Failed to submit. Please check your inputs.');
     } finally {
       setSubmitting(false);
     }
