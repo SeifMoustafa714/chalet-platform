@@ -30,7 +30,7 @@ export default function ReviewListingRequestPage({ params }: { params: { id: str
         maxGuests: draft.maxGuests,
       });
       await api.post(`/listing-requests/${params.id}/approve`);
-      router.push('/admin/listing-requests');
+      router.push('/listing-requests');
     } finally {
       setBusy(false);
     }
@@ -41,7 +41,7 @@ export default function ReviewListingRequestPage({ params }: { params: { id: str
     setBusy(true);
     try {
       await api.post(`/listing-requests/${params.id}/reject`, { reason: rejectReason });
-      router.push('/admin/listing-requests');
+      router.push('/listing-requests');
     } finally {
       setBusy(false);
     }
