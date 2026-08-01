@@ -117,4 +117,18 @@ export class ListingRequestsService {
     // TODO: notify request.user (email / WhatsApp) with `reason`
     return updated;
   }
+  // TODO: notify request.user (email / WhatsApp) with `reason`
+    return updated;
+  }
+
+  async remove(id: string) {
+    const request = await this.prisma.listingRequest.findUnique({ where: { id } });
+    if (!request) throw new NotFoundException('Listing request not found');
+    if (request.status === 'approved') {
+      throw new BadRequestException(
+        'This request is already live as a listing. Delete the listing instead.',
+      );
+    }
+    return this.prisma.listingRequest.delete({ where: { id } });
+  }
 }
