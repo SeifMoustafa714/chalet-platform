@@ -61,8 +61,11 @@ export interface ListingRequest {
   maxGuests: number;
   priceMin?: string;
   priceMax?: string;
+  contactPhone?: string;
+  contactWhatsapp?: string;
   status: 'pending_review' | 'approved' | 'rejected';
   adminNotes?: string;
   rejectionReason?: string;
   createdAt: string;
+  user?: { fullName: string; email: string; phone?: string };
 }
