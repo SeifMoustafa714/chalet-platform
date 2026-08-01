@@ -9,7 +9,7 @@ export function ListingCard({ listing }: { listing: Listing }) {
       href={`/listings/${listing.id}`}
       className="block overflow-hidden rounded-xl border border-ink/10 bg-white transition hover:-translate-y-0.5 hover:shadow-lg"
     >
-      <div className="relative h-48 w-full bg-sand">
+      <div className="listing-image-wrap">
         {listing.images[0] && (
           <Image src={listing.images[0]} alt={listing.title} fill className="object-cover" />
         )}
