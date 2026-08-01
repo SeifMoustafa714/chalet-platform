@@ -1,11 +1,24 @@
 'use client';
 
+import { useState } from 'react';
 import useSWR from 'swr';
 import Link from 'next/link';
-import { fetcher, ListingRequest } from '../../../lib/api';
+import { api, fetcher, ListingRequest } from '../../../lib/api';
 
 export default function AdminListingRequestsPage() {
-  const { data: requests, isLoading } = useSWR<ListingRequest[]>('/listing-requests?status=pending_review', fetcher);
+  const { data: requests, isLoading, mutate } = useSWR<ListingRequest[]>('/listing-requests?status=pending_review', fetcher);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  async function handleDelete(id: string) {
+    if (!confirm('Delete this request?')) return;
+    setBusyId(id);
+    try {
+      await api.delete(`/listing-requests/${id}`);
+      mutate();
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   if (isLoading) return <p className="text-ink/60">Loading…</p>;
 
@@ -33,6 +46,13 @@ export default function AdminListingRequestsPage() {
                 <td className="px-4 py-3 text-ink/60">{new Date(r.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3">
                   <Link href={`/listing-requests/${r.id}`} className="text-marina">Review →</Link>
+                  <button
+                    disabled={busyId === r.id}
+                    onClick={() => handleDelete(r.id)}
+                    className="ml-3 text-bougainvillea disabled:opacity-50"
+                  >
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
