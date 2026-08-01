@@ -66,55 +66,71 @@ export default function AdminBookingsPage() {
       <h1 className="mb-4 font-display text-2xl font-medium text-ink">Bookings</h1>
       <div className="space-y-3">
         {bookings?.length === 0 && <p className="text-ink/60">No bookings yet.</p>}
-        {bookings?.map((b) => (
-          <div key={b.id} className="rounded-lg border border-ink/10 bg-white p-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display font-medium text-ink">{b.listing.title}</h2>
-              <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[b.status]}`}>{b.status}</span>
-            </div>
-            <p className="text-sm text-ink/60">
-              {b.user.fullName} ({b.user.email}{b.user.phone ? `, ${b.user.phone}` : ''})
-            </p>
-            <p className="font-mono text-sm text-ink/60">
-              {new Date(b.checkIn).toLocaleDateString()} → {new Date(b.checkOut).toLocaleDateString()} · {b.guests} guests
-            </p>
-
-            {b.status === 'pending' && (
-              <div className="mt-3 flex items-center gap-2">
-                <input
-                  placeholder="Quoted price (EGP)"
-                  className="w-40 rounded border border-ink/20 p-1 text-sm"
-                  onChange={(e) => setPriceDrafts({ ...priceDrafts, [b.id]: e.target.value })}
-                />
-                <button disabled={busyId === b.id} onClick={() => confirm(b.id)}
-                  className="rounded bg-marina px-3 py-1 text-sm text-white disabled:opacity-50">
-                  Confirm
-                </button>
-                <button disabled={busyId === b.id} onClick={() => reject(b.id)}
-                  className="rounded bg-bougainvillea px-3 py-1 text-sm text-white disabled:opacity-50">
-                  Reject
-                </button>
+        {bookings?.map((b) => {
+          const isConfirmedAndPaid = b.status === 'confirmed' && b.payment?.status === 'verified';
+          return (
+            <div key={b.id} className="rounded-lg border border-ink/10 bg-white p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-display font-medium text-ink">{b.listing.title}</h2>
+                  <p className="font-mono text-xs text-ink/40">#{b.id.slice(0, 8)}</p>
+                </div>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[b.status]}`}>
+                  {isConfirmedAndPaid ? 'confirmed ✓' : b.status}
+                </span>
               </div>
-            )}
+              <p className="text-sm text-ink/60">
+                {b.user.fullName} ({b.user.email}{b.user.phone ? `, ${b.user.phone}` : ''})
+              </p>
+              <p className="font-mono text-sm text-ink/60">
+                {new Date(b.checkIn).toLocaleDateString()} → {new Date(b.checkOut).toLocaleDateString()} · {b.guests} guests
+              </p>
 
-            {b.status === 'confirmed' && !b.payment && (
-              <p className="mt-2 text-sm text-ink/50">Waiting for customer to submit payment reference.</p>
-            )}
-
-            {b.payment && (
-              <div className="mt-2 rounded bg-sand/60 p-2 font-mono text-sm">
-                {b.payment.method} · ref {b.payment.transactionRef} · {b.payment.amount} EGP ·{' '}
-                <span className="font-sans font-medium">{b.payment.status}</span>
-                {b.payment.status === 'submitted' && (
-                  <button disabled={busyId === b.id} onClick={() => verifyPayment(b.payment!.id)}
-                    className="ml-2 rounded bg-marina px-2 py-0.5 font-sans text-xs text-white">
-                    Verify payment
+              {b.status === 'pending' && (
+                <div className="mt-3 flex items-center gap-2">
+                  <input
+                    placeholder="Quoted price (EGP)"
+                    className="w-40 rounded border border-ink/20 p-1 text-sm"
+                    onChange={(e) => setPriceDrafts({ ...priceDrafts, [b.id]: e.target.value })}
+                  />
+                  <button disabled={busyId === b.id} onClick={() => confirm(b.id)}
+                    className="rounded bg-marina px-3 py-1 text-sm text-white disabled:opacity-50">
+                    Confirm
                   </button>
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+                  <button disabled={busyId === b.id} onClick={() => reject(b.id)}
+                    className="rounded bg-bougainvillea px-3 py-1 text-sm text-white disabled:opacity-50">
+                    Reject
+                  </button>
+                </div>
+              )}
+
+              {b.status === 'confirmed' && !b.payment && (
+                <p className="mt-2 text-sm text-ink/50">
+                  Quoted {b.quotedPrice ? `${Number(b.quotedPrice).toLocaleString()} EGP` : ''} · waiting for customer to pay via InstaPay.
+                </p>
+              )}
+
+              {b.payment && (
+                <div className="mt-2 rounded bg-sand/60 p-2 font-mono text-sm">
+                  InstaPay · ref {b.payment.transactionRef} · {b.payment.amount} EGP ·{' '}
+                  <span className="font-sans font-medium">{b.payment.status}</span>
+                  {b.payment.status === 'submitted' && (
+                    <button disabled={busyId === b.id} onClick={() => verifyPayment(b.payment!.id)}
+                      className="ml-2 rounded bg-marina px-2 py-0.5 font-sans text-xs text-white">
+                      Verify payment
+                    </button>
+                  )}
+                </div>
+              )}
+
+              {isConfirmedAndPaid && (
+                <p className="mt-2 rounded bg-marina/10 p-2 text-sm text-marina-deep">
+                  ✓ Booking confirmed for the customer.
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
