@@ -28,6 +28,7 @@ export function Header() {
           {user && user.role === 'ADMIN' && (
             <>
               <a href="/listing-requests" className="text-ink/70 hover:text-ink">Listing requests</a>
+              <a href="/listings" className="text-ink/70 hover:text-ink">Listings</a>
               <a href="/bookings" className="text-ink/70 hover:text-ink">Bookings</a>
               <button onClick={logout} className="text-ink/70 hover:text-ink">Log out</button>
             </>
@@ -37,6 +38,7 @@ export function Header() {
             <>
               <a href="/submit-listing" className="text-ink/70 hover:text-ink">List your chalet</a>
               <a href="/my-requests" className="text-ink/70 hover:text-ink">My requests</a>
+              <a href="/my-bookings" className="text-ink/70 hover:text-ink">My bookings</a>
               <button onClick={logout} className="text-ink/70 hover:text-ink">Log out</button>
             </>
           )}
