@@ -7,7 +7,7 @@ import { api, fetcher, ListingRequest } from '../../../../lib/api';
 
 export default function ReviewListingRequestPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { data: request, mutate } = useSWR<ListingRequest>(`/listing-requests/${params.id}`, fetcher);
+  const { data: request } = useSWR<ListingRequest>(`/listing-requests/${params.id}`, fetcher);
   const [draft, setDraft] = useState<Partial<ListingRequest>>({});
   const [rejectReason, setRejectReason] = useState('');
   const [busy, setBusy] = useState(false);
@@ -16,12 +16,11 @@ export default function ReviewListingRequestPage({ params }: { params: { id: str
     if (request) setDraft(request);
   }, [request]);
 
-  if (!request) return <p>Loading…</p>;
+  if (!request) return <p className="text-ink/60">Loading…</p>;
 
   async function handleApprove() {
     setBusy(true);
     try {
-      // save any admin edits first, then approve
       await api.patch(`/listing-requests/${params.id}`, {
         title: draft.title,
         description: draft.description,
@@ -47,17 +46,19 @@ export default function ReviewListingRequestPage({ params }: { params: { id: str
     }
   }
 
+  const inputClass = 'w-full rounded border border-ink/20 p-2';
+
   return (
     <div className="max-w-2xl space-y-4">
-      <h1 className="text-2xl font-bold">Review listing request</h1>
+      <h1 className="font-display text-2xl font-medium text-ink">Review listing request</h1>
 
-      <input className="w-full rounded border p-2" value={draft.title ?? ''}
+      <input className={inputClass} value={draft.title ?? ''}
         onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
 
-      <textarea className="w-full rounded border p-2" rows={4} value={draft.description ?? ''}
+      <textarea className={inputClass} rows={4} value={draft.description ?? ''}
         onChange={(e) => setDraft({ ...draft, description: e.target.value })} />
 
-      <input className="w-full rounded border p-2" value={draft.location ?? ''}
+      <input className={inputClass} value={draft.location ?? ''}
         onChange={(e) => setDraft({ ...draft, location: e.target.value })} />
 
       <div className="flex gap-3">
@@ -67,18 +68,17 @@ export default function ReviewListingRequestPage({ params }: { params: { id: str
         ))}
       </div>
 
-      <div className="flex gap-3 pt-2">
-        <button disabled={busy} onClick={handleApprove}
-          className="rounded-lg bg-emerald-600 px-4 py-2 text-white disabled:opacity-50">
+      <div className="pt-2">
+        <button disabled={busy} onClick={handleApprove} className="btn-primary">
           Approve &amp; publish
         </button>
       </div>
 
-      <div className="border-t pt-4">
-        <textarea placeholder="Rejection reason (sent to submitter)" className="w-full rounded border p-2"
+      <div className="rounded-lg border border-ink/10 bg-white p-4">
+        <textarea placeholder="Rejection reason (sent to submitter)" className={inputClass}
           value={rejectReason} onChange={(e) => setRejectReason(e.target.value)} />
         <button disabled={busy || !rejectReason.trim()} onClick={handleReject}
-          className="mt-2 rounded-lg bg-red-600 px-4 py-2 text-white disabled:opacity-50">
+          className="btn-accent mt-2">
           Reject
         </button>
       </div>
