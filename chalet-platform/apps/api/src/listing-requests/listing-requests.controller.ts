@@ -57,4 +57,17 @@ export class ListingRequestsController {
     const { reason } = RejectSchema.parse(body);
     return this.service.reject(id, admin.userId, reason);
   }
+
+  @Post(':id/reject')
+  @Roles(Role.ADMIN)
+  reject(@Param('id') id: string, @CurrentUser() admin: { userId: string }, @Body() body: unknown) {
+    const { reason } = RejectSchema.parse(body);
+    return this.service.reject(id, admin.userId, reason);
+  }
+
+  @Delete(':id')
+  @Roles(Role.ADMIN)
+  remove(@Param('id') id: string) {
+    return this.service.remove(id);
+  }
 }
