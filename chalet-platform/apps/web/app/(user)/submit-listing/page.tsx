@@ -31,53 +31,59 @@ export default function SubmitListingPage() {
       });
       router.push('/my-requests');
     } catch (err: any) {
-      const msg = err?.response?.data?.message;       setError(Array.isArray(msg) ? msg.join(' · ') : msg ?? 'Failed to submit. Please check your inputs.');
+      const msg = err?.response?.data?.message;
+      setError(Array.isArray(msg) ? msg.join(' · ') : msg ?? 'Failed to submit. Please check your inputs.');
     } finally {
       setSubmitting(false);
     }
   }
 
+  const inputClass = 'w-full rounded border border-ink/20 p-2';
+
   return (
     <form onSubmit={handleSubmit} className="max-w-xl space-y-4">
-      <h1 className="text-2xl font-bold">Submit a chalet for review</h1>
-      <p className="text-sm text-gray-500">
+      <h1 className="font-display text-2xl font-medium text-ink">Submit a chalet for review</h1>
+      <p className="text-sm text-ink/60">
         Your listing will be reviewed by our team before it goes live. This usually takes 24–48 hours.
       </p>
 
-      <input required placeholder="Title" className="w-full rounded border p-2"
+      <input required placeholder="Title" className={inputClass}
         value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
 
-      <textarea required placeholder="Description" rows={4} className="w-full rounded border p-2"
+      <textarea required placeholder="Description" rows={4} className={inputClass}
         value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
 
-      <input required placeholder="Location (e.g. Marassi, North Coast)" className="w-full rounded border p-2"
+      <input required placeholder="Location (e.g. Marassi, North Coast)" className={inputClass}
         value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} />
 
-      <select className="w-full rounded border p-2" value={form.region}
+      <select className={inputClass} value={form.region}
         onChange={(e) => setForm({ ...form, region: e.target.value as Region })}>
         {REGIONS.map((r) => <option key={r} value={r}>{r.replace('_', ' ')}</option>)}
       </select>
 
       <div className="flex gap-4">
-        <input type="number" placeholder="Max guests" className="w-full rounded border p-2"
+        <input type="number" placeholder="Max guests" className={inputClass}
           value={form.maxGuests} onChange={(e) => setForm({ ...form, maxGuests: Number(e.target.value) })} />
-        <input placeholder="Min price (EGP)" className="w-full rounded border p-2"
+        <input placeholder="Min price (EGP)" className={inputClass}
           value={form.priceMin} onChange={(e) => setForm({ ...form, priceMin: e.target.value })} />
-        <input placeholder="Max price (EGP)" className="w-full rounded border p-2"
+        <input placeholder="Max price (EGP)" className={inputClass}
           value={form.priceMax} onChange={(e) => setForm({ ...form, priceMax: e.target.value })} />
       </div>
 
-      <input required placeholder="Contact phone" className="w-full rounded border p-2"
+      <input required placeholder="Contact phone" className={inputClass}
         value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} />
 
-      {/* Image upload: request a presigned URL, PUT the file, then push the public URL into `images` */}
-      <p className="text-sm text-gray-500">Add at least one image URL (upload flow wired via /uploads/presign).</p>
-      <input placeholder="Paste image URL for now" className="w-full rounded border p-2"
-        onBlur={(e) => e.target.value && setImages([e.target.value])} />
+      <div className="rounded-lg border border-dashed border-ink/20 bg-white p-4">
+        <p className="text-sm text-ink/60">
+          Paste a direct image link (ending in .jpg/.png) — copy it from the actual photo, not a search results page.
+        </p>
+        <input placeholder="Image URL" className={`${inputClass} mt-2`}
+          onBlur={(e) => e.target.value && setImages([e.target.value])} />
+      </div>
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-bougainvillea">{error}</p>}
 
-      <button disabled={submitting} className="rounded-lg bg-sky-600 px-4 py-2 text-white disabled:opacity-50">
+      <button disabled={submitting} className="btn-primary">
         {submitting ? 'Submitting…' : 'Submit for review'}
       </button>
     </form>
