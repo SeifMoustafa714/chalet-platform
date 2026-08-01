@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { CreateListingDto, UpdateListingDto } from './dto/admin-listing.dto';
 
 @Injectable()
 export class ListingsService {
@@ -25,6 +26,13 @@ export class ListingsService {
     });
   }
 
+  findAllAdmin() {
+    return this.prisma.listing.findMany({
+      include: { pricing: true },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   async findOne(id: string) {
     const listing = await this.prisma.listing.findUnique({
       where: { id, isActive: true },
@@ -32,5 +40,97 @@ export class ListingsService {
     });
     if (!listing) throw new NotFoundException('Listing not found');
     return listing;
+  }
+
+  async findOneAdmin(id: string) {
+    const listing = await this.prisma.listing.findUnique({
+      where: { id },
+      include: { pricing: true },
+    });
+    if (!listing) throw new NotFoundException('Listing not found');
+    return listing;
+  }
+
+  async create(adminId: string, dto: CreateListingDto) {
+    return this.prisma.$transaction(async (tx) => {
+      const request = await tx.listingRequest.create({
+        data: {
+          userId: adminId,
+          title: dto.title,
+          description: dto.description,
+          location: dto.location,
+          region: dto.region,
+          amenities: dto.amenities ?? [],
+          maxGuests: dto.maxGuests,
+          images: dto.images,
+          contactPhone: dto.contactPhone ?? 'N/A',
+          status: 'approved',
+          reviewedById: adminId,
+          reviewedAt: new Date(),
+          adminNotes: 'Created directly by admin',
+        },
+      });
+
+      const listing = await tx.listing.create({
+        data: {
+          sourceRequestId: request.id,
+          title: dto.title,
+          description: dto.description,
+          location: dto.location,
+          region: dto.region,
+          amenities: dto.amenities ?? [],
+          maxGuests: dto.maxGuests,
+          images: dto.images,
+          approvedById: adminId,
+          verifiedFlag: true,
+        },
+      });
+
+      await tx.pricing.create({
+        data: {
+          listingId: listing.id,
+          basePrice: dto.basePrice,
+          weekendPrice: dto.weekendPrice,
+          seasonalPrice: dto.seasonalPrice,
+        },
+      });
+
+      return listing;
+    });
+  }
+
+  async update(id: string, dto: UpdateListingDto) {
+    const listing = await this.prisma.listing.findUnique({ where: { id } });
+    if (!listing) throw new NotFoundException('Listing not found');
+
+    const { basePrice, weekendPrice, seasonalPrice, ...listingFields } = dto;
+
+    await this.prisma.listing.update({ where: { id }, data: listingFields });
+
+    if (basePrice !== undefined || weekendPrice !== undefined || seasonalPrice !== undefined) {
+      await this.prisma.pricing.upsert({
+        where: { listingId: id },
+        create: { listingId: id, basePrice: basePrice ?? 0, weekendPrice, seasonalPrice },
+        update: { basePrice, weekendPrice, seasonalPrice },
+      });
+    }
+
+    return this.findOneAdmin(id);
+  }
+
+  async remove(id: string) {
+    const listing = await this.prisma.listing.findUnique({ where: { id } });
+    if (!listing) throw new NotFoundException('Listing not found');
+
+    const activeBookings = await this.prisma.booking.count({
+      where: { listingId: id, status: { in: ['pending', 'confirmed'] } },
+    });
+    if (activeBookings > 0) {
+      throw new BadRequestException(
+        'This listing has active bookings. Resolve or cancel them before deleting.',
+      );
+    }
+
+    return this.prisma.listing.update({ where: { id }, data: { isActive: false } });
   }
 }
