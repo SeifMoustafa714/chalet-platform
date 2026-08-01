@@ -13,16 +13,15 @@ import { ReviewEditSchema, RejectSchema } from './dto/review-listing-request.dto
 export class ListingRequestsController {
   constructor(private service: ListingRequestsService) {}
 
-  // Users and brokers submit new requests. Never goes live directly.
   @Post()
-  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
+  @Roles(Role.USER, Role.BROKER)
   create(@CurrentUser() user: { userId: string }, @Body() body: unknown) {
     const dto = CreateListingRequestSchema.parse(body);
     return this.service.create(user.userId, dto);
   }
 
   @Get('mine')
-  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
+  @Roles(Role.USER, Role.BROKER)
   findMine(@CurrentUser() user: { userId: string }) {
     return this.service.findMine(user.userId);
   }
@@ -49,13 +48,6 @@ export class ListingRequestsController {
   @Roles(Role.ADMIN)
   approve(@Param('id') id: string, @CurrentUser() admin: { userId: string }) {
     return this.service.approve(id, admin.userId);
-  }
-
-  @Post(':id/reject')
-  @Roles(Role.ADMIN)
-  reject(@Param('id') id: string, @CurrentUser() admin: { userId: string }, @Body() body: unknown) {
-    const { reason } = RejectSchema.parse(body);
-    return this.service.reject(id, admin.userId, reason);
   }
 
   @Post(':id/reject')
