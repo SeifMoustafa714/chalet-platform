@@ -30,6 +30,7 @@ export default function AdminListingRequestsPage() {
           <thead>
             <tr className="border-b border-ink/10 bg-sand/50 text-ink/60">
               <th className="px-4 py-2 font-medium">Title</th>
+              <th className="px-4 py-2 font-medium">Submitted by</th>
               <th className="px-4 py-2 font-medium">Location</th>
               <th className="px-4 py-2 font-medium">Submitted</th>
               <th className="px-4 py-2"></th>
@@ -37,11 +38,12 @@ export default function AdminListingRequestsPage() {
           </thead>
           <tbody>
             {requests?.length === 0 && (
-              <tr><td colSpan={4} className="px-4 py-6 text-center text-ink/50">Nothing pending review.</td></tr>
+              <tr><td colSpan={5} className="px-4 py-6 text-center text-ink/50">Nothing pending review.</td></tr>
             )}
             {requests?.map((r) => (
               <tr key={r.id} className="border-b border-ink/5 last:border-0">
                 <td className="px-4 py-3">{r.title}</td>
+                <td className="px-4 py-3 text-ink/60">{r.user?.fullName ?? '—'}</td>
                 <td className="px-4 py-3 text-ink/60">{r.location}</td>
                 <td className="px-4 py-3 text-ink/60">{new Date(r.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3">
