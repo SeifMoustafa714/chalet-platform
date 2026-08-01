@@ -47,7 +47,7 @@ function NewBookingForm() {
         <h1 className="font-display text-2xl font-medium text-ink">Request sent</h1>
         <p className="text-ink/70">
           Your booking request has been submitted as <strong>pending</strong>. Our team will confirm
-          availability and pricing with the host, then reach out. You can track it under "My requests."
+          availability and pricing with the host, then reach out. You can track it under "My bookings."
         </p>
         <a href="/" className="inline-block text-marina">← Back to listings</a>
       </div>
