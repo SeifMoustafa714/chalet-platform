@@ -52,6 +52,23 @@ export default function ReviewListingRequestPage({ params }: { params: { id: str
     <div className="max-w-2xl space-y-4">
       <h1 className="font-display text-2xl font-medium text-ink">Review listing request</h1>
 
+      <div className="rounded-lg border border-ink/10 bg-white p-4 text-sm">
+        <p className="font-medium text-ink">Submitted by {request.user?.fullName ?? 'Unknown'}</p>
+        <p className="text-ink/60">{request.user?.email}{request.user?.phone ? ` · ${request.user.phone}` : ''}</p>
+        <p className="mt-2 text-ink/70">Contact phone: <span className="font-mono">{request.contactPhone ?? '—'}</span></p>
+        {request.contactWhatsapp && (
+          <p className="text-ink/70">WhatsApp: <span className="font-mono">{request.contactWhatsapp}</span></p>
+        )}
+        <p className="mt-2 text-ink/70">
+          Indicative price:{' '}
+          <span className="font-mono">
+            {request.priceMin ? Number(request.priceMin).toLocaleString() : '—'}
+            {request.priceMax ? ` – ${Number(request.priceMax).toLocaleString()} EGP` : ''}
+          </span>
+        </p>
+        <p className="text-ink/70">Max guests: {request.maxGuests} · Region: {request.region?.replace('_', ' ')}</p>
+      </div>
+
       <input className={inputClass} value={draft.title ?? ''}
         onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
 
