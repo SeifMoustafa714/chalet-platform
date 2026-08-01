@@ -68,3 +68,13 @@ body {
   width: 100%;
   height: 48px;
 }
+
+/* Listing card image container — written as plain CSS (not Tailwind utilities)
+   so it can't be affected by any utility-generation issues. */
+.listing-image-wrap {
+  position: relative;
+  height: 12rem;
+  width: 100%;
+  background-color: #EDE7D8;
+  overflow: hidden;
+}
