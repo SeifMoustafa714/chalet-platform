@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateBookingDto, ConfirmBookingDto } from './dto/create-booking.dto';
 
@@ -24,6 +24,18 @@ export class BookingsService {
       include: { listing: true, payment: true },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  async findOne(id: string, requester: { userId: string; role: string }) {
+    const booking = await this.prisma.booking.findUnique({
+      where: { id },
+      include: { listing: true, payment: true, user: true },
+    });
+    if (!booking) throw new NotFoundException('Booking not found');
+    if (requester.role !== 'ADMIN' && booking.userId !== requester.userId) {
+      throw new ForbiddenException();
+    }
+    return booking;
   }
 
   findAll(status?: 'pending' | 'confirmed' | 'rejected' | 'cancelled') {
