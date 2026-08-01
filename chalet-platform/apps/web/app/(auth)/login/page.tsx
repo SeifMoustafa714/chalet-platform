@@ -15,7 +15,7 @@ export default function LoginPage() {
     try {
       const { data } = await api.post('/auth/login', { email, password });
       localStorage.setItem('accessToken', data.accessToken);
-      router.push('/');
+      window.location.href = '/';
     } catch {
       setError('Invalid email or password.');
     }
