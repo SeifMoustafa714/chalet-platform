@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const CreatePaymentSchema = z.object({
-  method: z.enum(['vodafone_cash', 'instapay', 'bank_transfer', 'cash']),
+  method: z.literal('instapay'),
   transactionRef: z.string().min(3),
   amount: z.number().positive(),
 });
