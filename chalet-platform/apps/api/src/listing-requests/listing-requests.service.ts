@@ -35,7 +35,6 @@ export class ListingRequestsService {
     });
     if (!request) throw new NotFoundException('Listing request not found');
 
-    // owners can view their own; admins can view any
     if (requester.role !== 'ADMIN' && request.userId !== requester.userId) {
       throw new ForbiddenException();
     }
@@ -51,11 +50,6 @@ export class ListingRequestsService {
     return this.prisma.listingRequest.update({ where: { id }, data: dto });
   }
 
-  /**
-   * Approve: converts a ListingRequest into a brand-new Listing row.
-   * Runs in a transaction so the request is never left "approved" without
-   * a corresponding live listing, or vice versa.
-   */
   async approve(id: string, adminId: string) {
     return this.prisma.$transaction(async (tx) => {
       const request = await tx.listingRequest.findUnique({ where: { id } });
@@ -79,7 +73,6 @@ export class ListingRequestsService {
         },
       });
 
-      // seed pricing from the request's indicative range so it's not empty on go-live
       await tx.pricing.create({
         data: {
           listingId: listing.id,
@@ -114,10 +107,6 @@ export class ListingRequestsService {
       },
     });
 
-    // TODO: notify request.user (email / WhatsApp) with `reason`
-    return updated;
-  }
-  // TODO: notify request.user (email / WhatsApp) with `reason`
     return updated;
   }
 
