@@ -31,6 +31,11 @@ export class BookingsController {
     return this.service.findAll(status);
   }
 
+  @Get(':id')
+  findOne(@Param('id') id: string, @CurrentUser() user: { userId: string; role: string }) {
+    return this.service.findOne(id, user);
+  }
+
   @Patch(':id/confirm')
   @Roles(Role.ADMIN)
   confirm(@Param('id') id: string, @Body() body: unknown) {
