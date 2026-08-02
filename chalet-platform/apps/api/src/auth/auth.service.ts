@@ -38,6 +38,15 @@ export class AuthService {
     return this.signTokens(user.id, user.email, user.role);
   }
 
+  async refresh(refreshToken: string) {
+    try {
+      const payload = this.jwt.verify(refreshToken, { secret: process.env.JWT_REFRESH_SECRET });
+      return this.signTokens(payload.sub, payload.email, payload.role);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+  }
+
   private signTokens(sub: string, email: string, role: string) {
     const payload = { sub, email, role };
     return {
