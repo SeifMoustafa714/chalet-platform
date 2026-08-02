@@ -4,7 +4,6 @@ export const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
 });
 
-// attach JWT if present (client-side only)
 if (typeof window !== 'undefined') {
   api.interceptors.request.use((config) => {
     const token = localStorage.getItem('accessToken');
@@ -12,9 +11,6 @@ if (typeof window !== 'undefined') {
     return config;
   });
 
-  // Silent session refresh: if a request fails because the access token
-  // expired (401), quietly trade the refresh token for a new pair and
-  // retry the original request once — the user never sees an error.
   let refreshPromise: Promise<string | null> | null = null;
 
   async function refreshAccessToken(): Promise<string | null> {
@@ -81,6 +77,21 @@ export function logout() {
 
 export type Region = 'north_coast' | 'ain_sokhna' | 'marsa_matrouh' | 'sharm';
 
+export const AMENITIES = [
+  'WiFi', 'Pool', 'Air Conditioning', 'Sea View', 'Parking',
+  'BBQ Area', 'Kids Friendly', 'Beach Access', 'Generator', 'Smart TV',
+];
+
+export function whatsappLink(phone: string, message: string) {
+  const digits = phone.replace(/\D/g, '');
+  const withCountryCode = digits.startsWith('20')
+    ? digits
+    : digits.startsWith('0')
+      ? '20' + digits.slice(1)
+      : '20' + digits;
+  return `https://wa.me/${withCountryCode}?text=${encodeURIComponent(message)}`;
+}
+
 export interface Listing {
   id: string;
   title: string;
@@ -88,9 +99,21 @@ export interface Listing {
   location: string;
   region: Region;
   images: string[];
+  amenities: string[];
   maxGuests: number;
   verifiedFlag: boolean;
+  contactPhone?: string;
   pricing?: { basePrice: string; weekendPrice?: string; seasonalPrice?: string };
+  availability?: { date: string; isBlocked: boolean }[];
+  reviews?: Review[];
+}
+
+export interface Review {
+  id: string;
+  rating: number;
+  comment?: string;
+  createdAt: string;
+  user: { fullName: string };
 }
 
 export interface ListingRequest {
