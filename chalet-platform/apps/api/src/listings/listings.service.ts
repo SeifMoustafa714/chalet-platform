@@ -183,7 +183,14 @@ export class ListingsService {
     });
   }
 
-  addReview(listingId: string, userId: string, rating: number, comment?: string) {
+  async addReview(listingId: string, userId: string, rating: number, comment?: string) {
+    const eligible = await this.prisma.booking.findFirst({
+      where: { listingId, userId, status: 'confirmed' },
+    });
+    if (!eligible) {
+      throw new ForbiddenException('Only guests with a confirmed booking can review this listing.');
+    }
+
     return this.prisma.review.create({
       data: { listingId, userId, rating, comment },
     });
