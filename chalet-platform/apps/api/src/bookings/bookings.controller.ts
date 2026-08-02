@@ -5,7 +5,7 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 import { BookingsService } from './bookings.service';
-import { CreateBookingSchema, ConfirmBookingSchema } from './dto/create-booking.dto';
+import { CreateBookingSchema, ConfirmBookingSchema, AdminUpdateBookingSchema } from './dto/create-booking.dto';
 
 @Controller('bookings')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -13,14 +13,14 @@ export class BookingsController {
   constructor(private service: BookingsService) {}
 
   @Post()
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
   create(@CurrentUser() user: { userId: string }, @Body() body: unknown) {
     const dto = CreateBookingSchema.parse(body);
     return this.service.create(user.userId, dto);
   }
 
   @Get('mine')
-  @Roles(Role.USER)
+  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
   findMine(@CurrentUser() user: { userId: string }) {
     return this.service.findMine(user.userId);
   }
@@ -47,5 +47,18 @@ export class BookingsController {
   @Roles(Role.ADMIN)
   reject(@Param('id') id: string, @Body('reason') reason?: string) {
     return this.service.reject(id, reason);
+  }
+
+  @Patch(':id/cancel')
+  @Roles(Role.ADMIN)
+  cancel(@Param('id') id: string) {
+    return this.service.cancel(id);
+  }
+
+  @Patch(':id')
+  @Roles(Role.ADMIN)
+  adminUpdate(@Param('id') id: string, @Body() body: unknown) {
+    const dto = AdminUpdateBookingSchema.parse(body);
+    return this.service.adminUpdate(id, dto);
   }
 }
