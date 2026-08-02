@@ -139,11 +139,32 @@ export class ListingsService {
     return this.prisma.listing.update({ where: { id }, data: { isActive: false } });
   }
 
-  getAvailability(listingId: string) {
-    return this.prisma.availability.findMany({
-      where: { listingId },
-      orderBy: { date: 'asc' },
-    });
+  async restore(id: string) {
+    const listing = await this.prisma.listing.findUnique({ where: { id } });
+    if (!listing) throw new NotFoundException('Listing not found');
+    return this.prisma.listing.update({ where: { id }, data: { isActive: true } });
+  }
+
+  async getAvailability(listingId: string) {
+    const [manualBlocks, confirmedBookings] = await Promise.all([
+      this.prisma.availability.findMany({ where: { listingId, isBlocked: true } }),
+      this.prisma.booking.findMany({
+        where: { listingId, status: 'confirmed' },
+        select: { checkIn: true, checkOut: true },
+      }),
+    ]);
+
+    const blocked = new Set(manualBlocks.map((a) => a.date.toISOString().slice(0, 10)));
+    for (const b of confirmedBookings) {
+      const cur = new Date(b.checkIn);
+      const end = new Date(b.checkOut);
+      while (cur < end) {
+        blocked.add(cur.toISOString().slice(0, 10));
+        cur.setDate(cur.getDate() + 1);
+      }
+    }
+
+    return Array.from(blocked).map((date) => ({ date, isBlocked: true }));
   }
 
   toggleAvailability(listingId: string, date: string, isBlocked: boolean) {
@@ -166,5 +187,21 @@ export class ListingsService {
     return this.prisma.review.create({
       data: { listingId, userId, rating, comment },
     });
+  }
+
+  adminGetAllReviews() {
+    return this.prisma.review.findMany({
+      include: {
+        user: { select: { fullName: true, email: true, phone: true } },
+        listing: { select: { title: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  async deleteReview(id: string) {
+    const review = await this.prisma.review.findUnique({ where: { id } });
+    if (!review) throw new NotFoundException('Review not found');
+    return this.prisma.review.delete({ where: { id } });
   }
 }
