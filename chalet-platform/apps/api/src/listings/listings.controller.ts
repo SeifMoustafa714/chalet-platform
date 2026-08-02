@@ -69,6 +69,13 @@ export class ListingsController {
     return this.service.remove(id);
   }
 
+  @Patch(':id/restore')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  restore(@Param('id') id: string) {
+    return this.service.restore(id);
+  }
+
   @Get(':id/availability')
   getAvailability(@Param('id') id: string) {
     return this.service.getAvailability(id);
