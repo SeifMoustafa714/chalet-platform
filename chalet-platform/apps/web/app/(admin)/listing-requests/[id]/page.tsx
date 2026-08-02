@@ -16,7 +16,7 @@ export default function ReviewListingRequestPage({ params }: { params: { id: str
     if (request) setDraft(request);
   }, [request]);
 
-  if (!request) return <p className="text-ink/60">Loading…</p>;
+  if (fetchError) {     return (       <p className="text-bougainvillea">         Could not load this request: {fetchError?.response?.data?.message ?? fetchError.message}       </p>     );   }   if (!request) return <p className="text-ink/60">Loading…</p>;
 
   async function handleApprove() {
     setBusy(true);
