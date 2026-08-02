@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const CreateBookingSchema = z.object({
   listingId: z.string().uuid(),
-  checkIn: z.string().datetime().or(z.string()), // ISO date
+  checkIn: z.string().datetime().or(z.string()),
   checkOut: z.string().datetime().or(z.string()),
   guests: z.number().int().positive(),
 });
@@ -13,3 +13,11 @@ export const ConfirmBookingSchema = z.object({
   adminNotes: z.string().optional(),
 });
 export type ConfirmBookingDto = z.infer<typeof ConfirmBookingSchema>;
+
+export const AdminUpdateBookingSchema = z.object({
+  checkIn: z.string().optional(),
+  checkOut: z.string().optional(),
+  guests: z.number().int().positive().optional(),
+  quotedPrice: z.number().positive().optional(),
+});
+export type AdminUpdateBookingDto = z.infer<typeof AdminUpdateBookingSchema>;
