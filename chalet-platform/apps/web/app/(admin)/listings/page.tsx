@@ -75,6 +75,7 @@ export default function AdminListingsPage() {
                 </td>
                 <td className="space-x-3 px-4 py-3">
                   <Link href={`/listings/${l.id}/edit`} className="text-marina">Edit</Link>
+                  <Link href={`/listings/${l.id}/availability`} className="text-marina">Availability</Link>
                   {l.isActive && (
                     <button
                       disabled={busyId === l.id}
