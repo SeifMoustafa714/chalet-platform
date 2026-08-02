@@ -105,6 +105,7 @@ model Listing {
   amenities       String[]
   maxGuests       Int
   images          String[]
+  contactPhone    String?
 
   approvedById    String
   approvedBy      User     @relation("ApprovedBy", fields: [approvedById], references: [id])
