@@ -36,7 +36,11 @@ export class ListingsService {
   async findOne(id: string) {
     const listing = await this.prisma.listing.findUnique({
       where: { id, isActive: true },
-      include: { pricing: true, availability: true, reviews: true },
+      include: {
+        pricing: true,
+        availability: true,
+        reviews: { include: { user: { select: { fullName: true } } }, orderBy: { createdAt: 'desc' } },
+      },
     });
     if (!listing) throw new NotFoundException('Listing not found');
     return listing;
@@ -81,6 +85,7 @@ export class ListingsService {
           amenities: dto.amenities ?? [],
           maxGuests: dto.maxGuests,
           images: dto.images,
+          contactPhone: dto.contactPhone,
           approvedById: adminId,
           verifiedFlag: true,
         },
@@ -132,5 +137,34 @@ export class ListingsService {
     }
 
     return this.prisma.listing.update({ where: { id }, data: { isActive: false } });
+  }
+
+  getAvailability(listingId: string) {
+    return this.prisma.availability.findMany({
+      where: { listingId },
+      orderBy: { date: 'asc' },
+    });
+  }
+
+  toggleAvailability(listingId: string, date: string, isBlocked: boolean) {
+    return this.prisma.availability.upsert({
+      where: { listingId_date: { listingId, date: new Date(date) } },
+      create: { listingId, date: new Date(date), isBlocked },
+      update: { isBlocked },
+    });
+  }
+
+  getReviews(listingId: string) {
+    return this.prisma.review.findMany({
+      where: { listingId },
+      include: { user: { select: { fullName: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  addReview(listingId: string, userId: string, rating: number, comment?: string) {
+    return this.prisma.review.create({
+      data: { listingId, userId, rating, comment },
+    });
   }
 }
