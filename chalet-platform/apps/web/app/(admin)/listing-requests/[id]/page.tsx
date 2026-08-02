@@ -7,7 +7,7 @@ import { api, fetcher, ListingRequest } from '../../../../lib/api';
 
 export default function ReviewListingRequestPage({ params }: { params: { id: string } }) {
   const router = useRouter();
-  const { data: request } = useSWR<ListingRequest>(`/listing-requests/${params.id}`, fetcher);
+  const { data: request, error: fetchError } = useSWR<ListingRequest>(`/listing-requests/${params.id}`, fetcher);
   const [draft, setDraft] = useState<Partial<ListingRequest>>({});
   const [rejectReason, setRejectReason] = useState('');
   const [busy, setBusy] = useState(false);
