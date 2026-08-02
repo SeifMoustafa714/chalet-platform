@@ -23,6 +23,7 @@ export const UpdateListingSchema = z.object({
   amenities: z.array(z.string()).optional(),
   maxGuests: z.number().int().positive().optional(),
   images: z.array(z.string().url()).optional(),
+  contactPhone: z.string().optional(),
   isActive: z.boolean().optional(),
   basePrice: z.number().positive().optional(),
   weekendPrice: z.number().positive().optional(),
