@@ -22,7 +22,7 @@ export default function ListingAvailabilityPage({ params }: { params: { id: stri
   async function toggleDay(date: string) {
     const isCurrentlyBlocked = blockedDates.has(date);
     mutate(
-      [...availability.filter((a) => a.date.slice(0, 10) !== date), { date, isBlocked: !isCurrentlyBlocked }],
+      [...(availability ?? []).filter((a) => a.date.slice(0, 10) !== date), { date, isBlocked: !isCurrentlyBlocked }],
       false,
     );
     await api.patch(`/listings/${params.id}/availability`, { date, isBlocked: !isCurrentlyBlocked });
