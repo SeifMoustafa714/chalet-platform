@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, Region } from '../../../lib/api';
+import { api, AMENITIES, Region } from '../../../lib/api';
 
 const REGIONS: Region[] = ['north_coast', 'ain_sokhna', 'marsa_matrouh', 'sharm'];
 
@@ -12,9 +12,14 @@ export default function SubmitListingPage() {
     title: '', description: '', location: '', region: REGIONS[0],
     maxGuests: 4, priceMin: '', priceMax: '', contactPhone: '',
   });
+  const [amenities, setAmenities] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function toggleAmenity(a: string) {
+    setAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,7 +32,7 @@ export default function SubmitListingPage() {
         priceMin: form.priceMin ? Number(form.priceMin) : undefined,
         priceMax: form.priceMax ? Number(form.priceMax) : undefined,
         images,
-        amenities: [],
+        amenities,
       });
       router.push('/my-requests');
     } catch (err: any) {
@@ -72,6 +77,24 @@ export default function SubmitListingPage() {
 
       <input required placeholder="Contact phone" className={inputClass}
         value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} />
+
+      <div>
+        <p className="mb-2 text-sm text-ink/70">Amenities</p>
+        <div className="flex flex-wrap gap-2">
+          {AMENITIES.map((a) => (
+            <button
+              type="button"
+              key={a}
+              onClick={() => toggleAmenity(a)}
+              className={`rounded-full px-3 py-1 text-sm ${
+                amenities.includes(a) ? 'bg-marina text-white' : 'bg-sand text-ink/70'
+              }`}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
+      </div>
 
       <div className="rounded-lg border border-dashed border-ink/20 bg-white p-4">
         <p className="text-sm text-ink/60">
