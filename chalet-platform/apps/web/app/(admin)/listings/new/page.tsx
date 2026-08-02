@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, Region } from '../../../../lib/api';
+import { api, AMENITIES, Region } from '../../../../lib/api';
 
 const REGIONS: Region[] = ['north_coast', 'ain_sokhna', 'marsa_matrouh', 'sharm'];
 
@@ -10,10 +10,15 @@ export default function NewListingPage() {
   const router = useRouter();
   const [form, setForm] = useState({
     title: '', description: '', location: '', region: REGIONS[0],
-    maxGuests: 4, basePrice: '', weekendPrice: '', imageUrl: '',
+    maxGuests: 4, basePrice: '', weekendPrice: '', imageUrl: '', contactPhone: '',
   });
+  const [amenities, setAmenities] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+
+  function toggleAmenity(a: string) {
+    setAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,6 +32,8 @@ export default function NewListingPage() {
         region: form.region,
         maxGuests: Number(form.maxGuests),
         images: [form.imageUrl],
+        amenities,
+        contactPhone: form.contactPhone || undefined,
         basePrice: Number(form.basePrice),
         weekendPrice: form.weekendPrice ? Number(form.weekendPrice) : undefined,
       });
@@ -65,11 +72,32 @@ export default function NewListingPage() {
       <input required type="number" placeholder="Max guests" className={inputClass}
         value={form.maxGuests} onChange={(e) => setForm({ ...form, maxGuests: Number(e.target.value) })} />
 
+      <input required placeholder="Contact phone (for WhatsApp button)" className={inputClass}
+        value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} />
+
       <div className="flex gap-4">
         <input required placeholder="Base price (EGP)" className={inputClass}
           value={form.basePrice} onChange={(e) => setForm({ ...form, basePrice: e.target.value })} />
         <input placeholder="Weekend price (EGP, optional)" className={inputClass}
           value={form.weekendPrice} onChange={(e) => setForm({ ...form, weekendPrice: e.target.value })} />
+      </div>
+
+      <div>
+        <p className="mb-2 text-sm text-ink/70">Amenities</p>
+        <div className="flex flex-wrap gap-2">
+          {AMENITIES.map((a) => (
+            <button
+              type="button"
+              key={a}
+              onClick={() => toggleAmenity(a)}
+              className={`rounded-full px-3 py-1 text-sm ${
+                amenities.includes(a) ? 'bg-marina text-white' : 'bg-sand text-ink/70'
+              }`}
+            >
+              {a}
+            </button>
+          ))}
+        </div>
       </div>
 
       <input required placeholder="Image URL (direct link)" className={inputClass}
