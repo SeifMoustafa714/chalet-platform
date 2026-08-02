@@ -20,7 +20,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
 
   if (!listing) return <p className="text-ink/60">Loading…</p>;
 
-  const whatsappUrl = whatsappLink(listing.contactPhone ?? '', `I'm interested in ${listing.title}`);
+  const whatsappUrl = whatsappLink(     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '',     `I have a question about ${listing.title}`,   );
   const blockedDates = new Set((listing.availability ?? []).filter((a) => a.isBlocked).map((a) => a.date.slice(0, 10)));
   const avgRating = listing.reviews?.length
     ? (listing.reviews.reduce((sum, r) => sum + r.rating, 0) / listing.reviews.length).toFixed(1)
