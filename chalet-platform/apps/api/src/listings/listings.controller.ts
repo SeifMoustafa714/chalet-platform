@@ -6,6 +6,7 @@ import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { Role } from '@prisma/client';
 import { ListingsService } from './listings.service';
 import { CreateListingSchema, UpdateListingSchema } from './dto/admin-listing.dto';
+import { ToggleAvailabilitySchema, CreateReviewSchema } from './dto/availability-review.dto';
 
 @Controller('listings')
 export class ListingsController {
@@ -66,5 +67,31 @@ export class ListingsController {
   @Roles(Role.ADMIN)
   remove(@Param('id') id: string) {
     return this.service.remove(id);
+  }
+
+  @Get(':id/availability')
+  getAvailability(@Param('id') id: string) {
+    return this.service.getAvailability(id);
+  }
+
+  @Patch(':id/availability')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  setAvailability(@Param('id') id: string, @Body() body: unknown) {
+    const dto = ToggleAvailabilitySchema.parse(body);
+    return this.service.toggleAvailability(id, dto.date, dto.isBlocked);
+  }
+
+  @Get(':id/reviews')
+  getReviews(@Param('id') id: string) {
+    return this.service.getReviews(id);
+  }
+
+  @Post(':id/reviews')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
+  addReview(@Param('id') id: string, @CurrentUser() user: { userId: string }, @Body() body: unknown) {
+    const dto = CreateReviewSchema.parse(body);
+    return this.service.addReview(id, user.userId, dto.rating, dto.comment);
   }
 }
