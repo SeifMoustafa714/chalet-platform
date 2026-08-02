@@ -68,6 +68,7 @@ export class ListingRequestsService {
           amenities: request.amenities,
           maxGuests: request.maxGuests,
           images: request.images,
+          contactPhone: request.contactPhone,
           approvedById: adminId,
           verifiedFlag: true,
         },
