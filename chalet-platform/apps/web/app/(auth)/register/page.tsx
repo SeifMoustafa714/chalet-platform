@@ -17,6 +17,7 @@ export default function RegisterPage() {
     try {
       const { data } = await api.post('/auth/register', form);
       localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
       window.location.href = '/';
     } catch (err: any) {
       const msg = err?.response?.data?.message;
