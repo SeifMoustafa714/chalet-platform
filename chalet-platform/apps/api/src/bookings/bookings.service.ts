@@ -1,6 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateBookingDto, ConfirmBookingDto } from './dto/create-booking.dto';
+import { CreateBookingDto, ConfirmBookingDto, AdminUpdateBookingDto } from './dto/create-booking.dto';
 
 @Injectable()
 export class BookingsService {
@@ -65,6 +65,32 @@ export class BookingsService {
     return this.prisma.booking.update({
       where: { id },
       data: { status: 'rejected', adminNotes: reason },
+    });
+  }
+
+  async adminUpdate(id: string, dto: AdminUpdateBookingDto) {
+    const booking = await this.prisma.booking.findUnique({ where: { id } });
+    if (!booking) throw new NotFoundException('Booking not found');
+
+    return this.prisma.booking.update({
+      where: { id },
+      data: {
+        checkIn: dto.checkIn ? new Date(dto.checkIn) : undefined,
+        checkOut: dto.checkOut ? new Date(dto.checkOut) : undefined,
+        guests: dto.guests,
+        quotedPrice: dto.quotedPrice,
+      },
+    });
+  }
+
+  async cancel(id: string) {
+    const booking = await this.prisma.booking.findUnique({ where: { id } });
+    if (!booking) throw new NotFoundException('Booking not found');
+    if (booking.status === 'cancelled') throw new BadRequestException('Booking is already cancelled');
+
+    return this.prisma.booking.update({
+      where: { id },
+      data: { status: 'cancelled' },
     });
   }
 }
