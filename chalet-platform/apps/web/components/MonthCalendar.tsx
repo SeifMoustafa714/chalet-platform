@@ -5,13 +5,15 @@ import { useState } from 'react';
 interface MonthCalendarProps {
   blockedDates: Set<string>;
   onDayClick?: (date: string) => void;
+  disableBlockedDates?: boolean;
+  selectedDates?: Set<string>;
 }
 
 function toDateKey(y: number, m: number, d: number) {
   return `${y}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
 }
 
-export function MonthCalendar({ blockedDates, onDayClick }: MonthCalendarProps) {
+export function MonthCalendar({ blockedDates, onDayClick, disableBlockedDates, selectedDates }: MonthCalendarProps) {
   const today = new Date();
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
@@ -47,17 +49,23 @@ export function MonthCalendar({ blockedDates, onDayClick }: MonthCalendarProps) 
           if (day === null) return <div key={i} />;
           const key = toDateKey(year, month, day);
           const isBlocked = blockedDates.has(key);
+          const isSelected = selectedDates?.has(key);
+          const isClickDisabled = !onDayClick || (disableBlockedDates && isBlocked);
           return (
             <button
               type="button"
               key={i}
-              disabled={!onDayClick}
+              disabled={isClickDisabled}
               onClick={() => onDayClick?.(key)}
               className={`aspect-square rounded text-xs ${
                 isBlocked
                   ? 'bg-bougainvillea/20 text-bougainvillea'
-                  : 'bg-sand/50 text-ink/70 hover:bg-marina/10'
-              } ${onDayClick ? 'cursor-pointer' : 'cursor-default'}`}
+                  : isSelected
+                    ? 'bg-marina text-white'
+                    : 'bg-sand/50 text-ink/70 hover:bg-marina/10'
+              } ${isClickDisabled ? 'cursor-default' : 'cursor-pointer'} ${
+                disableBlockedDates && isBlocked ? 'opacity-50' : ''
+              }`}
             >
               {day}
             </button>
