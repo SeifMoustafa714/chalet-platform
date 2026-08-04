@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { api } from '../../../lib/api';
 
-export default function RegisterPage() {
-  const router = useRouter();
+function RegisterForm() {
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get('redirect');
+
   const [form, setForm] = useState({ fullName: '', email: '', password: '', phone: '' });
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -18,10 +20,11 @@ export default function RegisterPage() {
       const { data } = await api.post('/auth/register', form);
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
-      window.location.href = '/';
+      window.location.href = redirect || '/';
     } catch (err: any) {
       const msg = err?.response?.data?.message;
       setError(Array.isArray(msg) ? msg.join(' · ') : msg ?? 'Could not create account. Try a different email.');
+      setForm({ ...form, password: '' });
     } finally {
       setSubmitting(false);
     }
@@ -30,6 +33,12 @@ export default function RegisterPage() {
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-sm space-y-4">
       <h1 className="font-display text-2xl font-medium text-ink">Create an account</h1>
+
+      {redirect && (
+        <p className="rounded-lg bg-sun/20 p-3 text-sm text-ink/70">
+          Please sign up to continue booking your stay.
+        </p>
+      )}
 
       <input required placeholder="Full name" className="w-full rounded border border-ink/20 p-2"
         value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} />
@@ -50,8 +59,19 @@ export default function RegisterPage() {
       </button>
 
       <p className="text-center text-sm text-ink/60">
-        Already have an account? <a href="/login" className="text-marina">Log in</a>
+        Already have an account?{' '}
+        <a href={redirect ? `/login?redirect=${encodeURIComponent(redirect)}` : '/login'} className="text-marina">
+          Log in
+        </a>
       </p>
     </form>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<p className="text-ink/60">Loading…</p>}>
+      <RegisterForm />
+    </Suspense>
   );
 }
