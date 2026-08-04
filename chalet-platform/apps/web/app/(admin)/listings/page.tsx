@@ -33,6 +33,17 @@ export default function AdminListingsPage() {
     }
   }
 
+  async function handleRestore(id: string) {
+    setBusyId(id);
+    setError(null);
+    try {
+      await api.patch(`/listings/${id}/restore`);
+      mutate();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   if (isLoading) return <p className="text-ink/60">Loading…</p>;
 
   return (
@@ -76,13 +87,21 @@ export default function AdminListingsPage() {
                 <td className="space-x-3 px-4 py-3">
                   <Link href={`/listings/${l.id}/edit`} className="text-marina">Edit</Link>
                   <Link href={`/listings/${l.id}/availability`} className="text-marina">Availability</Link>
-                  {l.isActive && (
+                  {l.isActive ? (
                     <button
                       disabled={busyId === l.id}
                       onClick={() => handleDelete(l.id)}
                       className="text-bougainvillea disabled:opacity-50"
                     >
                       Delete
+                    </button>
+                  ) : (
+                    <button
+                      disabled={busyId === l.id}
+                      onClick={() => handleRestore(l.id)}
+                      className="text-marina disabled:opacity-50"
+                    >
+                      Republish
                     </button>
                   )}
                 </td>
