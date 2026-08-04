@@ -1,14 +1,40 @@
+'use client';
+
+import { useState } from 'react';
+import useSWR from 'swr';
 import { ListingCard } from '../../components/ListingCard';
-import { Listing } from '../../lib/api';
+import { fetcher, Listing, Region } from '../../lib/api';
 
-async function getListings(): Promise<Listing[]> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/listings`, { next: { revalidate: 60 } });
-  if (!res.ok) return [];
-  return res.json();
-}
+const REGIONS: { value: Region | ''; label: string }[] = [
+  { value: '', label: 'All regions' },
+  { value: 'north_coast', label: 'North Coast' },
+  { value: 'ain_sokhna', label: 'Ain Sokhna' },
+  { value: 'marsa_matrouh', label: 'Marsa Matrouh' },
+  { value: 'sharm', label: 'Sharm El Sheikh' },
+];
 
-export default async function HomePage() {
-  const listings = await getListings();
+export default function HomePage() {
+  const [search, setSearch] = useState('');
+  const [region, setRegion] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+
+  const query = new URLSearchParams();
+  if (search) query.set('search', search);
+  if (region) query.set('region', region);
+  if (minPrice) query.set('minPrice', minPrice);
+  if (maxPrice) query.set('maxPrice', maxPrice);
+
+  const { data: listings, isLoading } = useSWR<Listing[]>(`/listings?${query.toString()}`, fetcher);
+
+  const hasFilters = search || region || minPrice || maxPrice;
+
+  function clearFilters() {
+    setSearch('');
+    setRegion('');
+    setMinPrice('');
+    setMaxPrice('');
+  }
 
   return (
     <div>
@@ -31,12 +57,51 @@ export default async function HomePage() {
         <path d="M0,24 C150,48 350,0 600,24 C850,48 1050,0 1200,24 L1200,48 L0,48 Z" fill="#EDE7D8" />
       </svg>
 
-      <div className="pt-4">
-        {listings.length === 0 ? (
-          <p className="text-ink/60">No listings yet — check back soon.</p>
+      <div className="mt-4 rounded-lg border border-ink/10 bg-white p-4">
+        <div className="flex flex-wrap gap-3">
+          <input
+            placeholder="Search by name or location…"
+            className="min-w-[200px] flex-1 rounded border border-ink/20 p-2 text-sm"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+          <select
+            className="rounded border border-ink/20 p-2 text-sm"
+            value={region}
+            onChange={(e) => setRegion(e.target.value)}
+          >
+            {REGIONS.map((r) => <option key={r.value} value={r.value}>{r.label}</option>)}
+          </select>
+          <input
+            placeholder="Min EGP"
+            type="number"
+            className="w-28 rounded border border-ink/20 p-2 text-sm"
+            value={minPrice}
+            onChange={(e) => setMinPrice(e.target.value)}
+          />
+          <input
+            placeholder="Max EGP"
+            type="number"
+            className="w-28 rounded border border-ink/20 p-2 text-sm"
+            value={maxPrice}
+            onChange={(e) => setMaxPrice(e.target.value)}
+          />
+          {hasFilters && (
+            <button onClick={clearFilters} className="text-sm text-marina">Clear filters</button>
+          )}
+        </div>
+      </div>
+
+      <div className="pt-6">
+        {isLoading ? (
+          <p className="text-ink/60">Loading…</p>
+        ) : listings?.length === 0 ? (
+          <p className="text-ink/60">
+            {hasFilters ? 'No chalets match those filters — try widening your search.' : 'No listings yet — check back soon.'}
+          </p>
         ) : (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {listings.map((l) => (
+            {listings?.map((l) => (
               <ListingCard key={l.id} listing={l} />
             ))}
           </div>
