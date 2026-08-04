@@ -27,6 +27,8 @@ export default function AdminBookingsPage() {
   const { data: bookings, isLoading, mutate } = useSWR<AdminBooking[]>('/bookings', fetcher);
   const [priceDrafts, setPriceDrafts] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<{ checkIn: string; checkOut: string; guests: number } | null>(null);
 
   async function confirm(id: string) {
     setBusyId(id);
@@ -43,6 +45,38 @@ export default function AdminBookingsPage() {
     setBusyId(id);
     try {
       await api.patch(`/bookings/${id}/reject`, { reason: 'Not available for the requested dates' });
+      mutate();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function cancelBooking(id: string) {
+    if (!confirm('Cancel this booking?')) return;
+    setBusyId(id);
+    try {
+      await api.patch(`/bookings/${id}/cancel`);
+      mutate();
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  function startEdit(b: AdminBooking) {
+    setEditingId(b.id);
+    setEditDraft({
+      checkIn: b.checkIn.slice(0, 10),
+      checkOut: b.checkOut.slice(0, 10),
+      guests: b.guests,
+    });
+  }
+
+  async function saveEdit(id: string) {
+    if (!editDraft) return;
+    setBusyId(id);
+    try {
+      await api.patch(`/bookings/${id}`, editDraft);
+      setEditingId(null);
       mutate();
     } finally {
       setBusyId(null);
@@ -68,6 +102,7 @@ export default function AdminBookingsPage() {
         {bookings?.length === 0 && <p className="text-ink/60">No bookings yet.</p>}
         {bookings?.map((b) => {
           const isConfirmedAndPaid = b.status === 'confirmed' && b.payment?.status === 'verified';
+          const isEditing = editingId === b.id;
           return (
             <div key={b.id} className="rounded-lg border border-ink/10 bg-white p-4">
               <div className="flex items-center justify-between">
@@ -82,11 +117,26 @@ export default function AdminBookingsPage() {
               <p className="text-sm text-ink/60">
                 {b.user.fullName} ({b.user.email}{b.user.phone ? `, ${b.user.phone}` : ''})
               </p>
-              <p className="font-mono text-sm text-ink/60">
-                {new Date(b.checkIn).toLocaleDateString()} → {new Date(b.checkOut).toLocaleDateString()} · {b.guests} guests
-              </p>
 
-              {b.status === 'pending' && (
+              {isEditing && editDraft ? (
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <input type="date" className="rounded border border-ink/20 p-1 text-sm"
+                    value={editDraft.checkIn} onChange={(e) => setEditDraft({ ...editDraft, checkIn: e.target.value })} />
+                  <input type="date" className="rounded border border-ink/20 p-1 text-sm"
+                    value={editDraft.checkOut} onChange={(e) => setEditDraft({ ...editDraft, checkOut: e.target.value })} />
+                  <input type="number" min={1} className="w-16 rounded border border-ink/20 p-1 text-sm"
+                    value={editDraft.guests} onChange={(e) => setEditDraft({ ...editDraft, guests: Number(e.target.value) })} />
+                  <button disabled={busyId === b.id} onClick={() => saveEdit(b.id)}
+                    className="rounded bg-marina px-2 py-1 text-xs text-white disabled:opacity-50">Save</button>
+                  <button onClick={() => setEditingId(null)} className="text-xs text-ink/50">Cancel</button>
+                </div>
+              ) : (
+                <p className="font-mono text-sm text-ink/60">
+                  {new Date(b.checkIn).toLocaleDateString()} → {new Date(b.checkOut).toLocaleDateString()} · {b.guests} guests
+                </p>
+              )}
+
+              {b.status === 'pending' && !isEditing && (
                 <div className="mt-3 flex items-center gap-2">
                   <input
                     placeholder="Quoted price (EGP)"
@@ -127,6 +177,15 @@ export default function AdminBookingsPage() {
                 <p className="mt-2 rounded bg-marina/10 p-2 text-sm text-marina-deep">
                   ✓ Booking confirmed for the customer.
                 </p>
+              )}
+
+              {!isEditing && b.status !== 'cancelled' && (
+                <div className="mt-3 flex gap-3 text-sm">
+                  <button onClick={() => startEdit(b)} className="text-marina">Edit dates/guests</button>
+                  <button disabled={busyId === b.id} onClick={() => cancelBooking(b.id)} className="text-bougainvillea disabled:opacity-50">
+                    Cancel booking
+                  </button>
+                </div>
               )}
             </div>
           );
