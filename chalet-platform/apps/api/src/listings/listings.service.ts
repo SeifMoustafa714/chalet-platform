@@ -6,7 +6,7 @@ import { CreateListingDto, UpdateListingDto } from './dto/admin-listing.dto';
 export class ListingsService {
   constructor(private prisma: PrismaService) {}
 
-  findAll(filters: { region?: string; guests?: number; minPrice?: number; maxPrice?: number }) {
+  findAll(filters: { region?: string; guests?: number; minPrice?: number; maxPrice?: number; search?: string }) {
     return this.prisma.listing.findMany({
       where: {
         isActive: true,
@@ -20,6 +20,14 @@ export class ListingsService {
               },
             }
           : undefined,
+        ...(filters.search
+          ? {
+              OR: [
+                { title: { contains: filters.search, mode: 'insensitive' } },
+                { location: { contains: filters.search, mode: 'insensitive' } },
+              ],
+            }
+          : {}),
       },
       include: { pricing: true },
       orderBy: { createdAt: 'desc' },
