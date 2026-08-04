@@ -1,11 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { api } from '../../../lib/api';
 
 export default function LoginPage() {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +17,7 @@ export default function LoginPage() {
       window.location.href = '/';
     } catch {
       setError('Invalid email or password.');
+      setPassword('');
     }
   }
 
