@@ -43,6 +43,9 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
     }
   }
 
+  const bookingUrl = `/bookings/new?listingId=${listing.id}`;
+  const requestToBookHref = loggedIn ? bookingUrl : `/login?redirect=${encodeURIComponent(bookingUrl)}`;
+
   return (
     <article className="max-w-2xl space-y-6">
       <div>
@@ -67,7 +70,7 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
 
       <div className="flex gap-3 pt-2">
         <a href={whatsappUrl} className="btn-accent">Ask on WhatsApp</a>
-        <a href={`/bookings/new?listingId=${listing.id}`} className="btn-primary">Request to book</a>
+        <a href={requestToBookHref} className="btn-primary">Request to book</a>
       </div>
 
       <div className="border-t border-ink/10 pt-6">
