@@ -29,7 +29,7 @@ export function Header() {
 
   const links = user?.role === 'ADMIN' ? ADMIN_LINKS : USER_LINKS;
 
-  return (
+  return 
     <header className="sticky top-0 z-10 border-b border-ink/10 bg-sand/95 px-6 py-4 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between">
         <a href="/" className="font-display text-2xl font-medium tracking-tight text-ink">
