@@ -1,9 +1,9 @@
 'use client';
 
-import { Suspense, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import useSWR from 'swr';
-import { api, fetcher } from '../../../../lib/api';
+import { api, fetcher, getCurrentUser } from '../../../../lib/api';
 import { MonthCalendar } from '../../../../components/MonthCalendar';
 
 function dateRange(start: string, end: string): string[] {
@@ -21,6 +21,13 @@ function NewBookingForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const listingId = searchParams.get('listingId') ?? '';
+
+  useEffect(() => {
+    if (!getCurrentUser()) {
+      const here = `/bookings/new?listingId=${listingId}`;
+      router.replace(`/login?redirect=${encodeURIComponent(here)}`);
+    }
+  }, [listingId, router]);
 
   const { data: availability } = useSWR<{ date: string; isBlocked: boolean }[]>(
     listingId ? `/listings/${listingId}/availability` : null,
