@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import useSWR from 'swr';
 import { PriceRange } from '../../../../components/PriceRange';
-import { MonthCalendar } from '../../../../components/MonthCalendar';
 import { api, fetcher, getCurrentUser, whatsappLink, Listing } from '../../../../lib/api';
 
 export default function ListingDetailPage({ params }: { params: { id: string } }) {
@@ -20,8 +19,10 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
 
   if (!listing) return <p className="text-ink/60">Loading…</p>;
 
-  const whatsappUrl = whatsappLink(     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '',     `I have a question about ${listing.title}`,   );
-  const blockedDates = new Set((listing.availability ?? []).filter((a) => a.isBlocked).map((a) => a.date.slice(0, 10)));
+  const whatsappUrl = whatsappLink(
+    process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? '',
+    `I have a question about ${listing.title}`,
+  );
   const avgRating = listing.reviews?.length
     ? (listing.reviews.reduce((sum, r) => sum + r.rating, 0) / listing.reviews.length).toFixed(1)
     : null;
@@ -63,13 +64,6 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
           </div>
         </div>
       )}
-
-      <div>
-        <h2 className="font-display text-lg font-medium text-ink">Availability</h2>
-        <div className="mt-2">
-          <MonthCalendar blockedDates={blockedDates} />
-        </div>
-      </div>
 
       <div className="flex gap-3 pt-2">
         <a href={whatsappUrl} className="btn-accent">Ask on WhatsApp</a>
