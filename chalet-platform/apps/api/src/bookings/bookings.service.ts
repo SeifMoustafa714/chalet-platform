@@ -68,9 +68,17 @@ export class BookingsService {
     });
   }
 
-  async adminUpdate(id: string, dto: AdminUpdateBookingDto) {
+  async update(id: string, requester: { userId: string; role: string }, dto: AdminUpdateBookingDto) {
     const booking = await this.prisma.booking.findUnique({ where: { id } });
     if (!booking) throw new NotFoundException('Booking not found');
+
+    if (requester.role !== 'ADMIN') {
+      if (booking.userId !== requester.userId) throw new ForbiddenException();
+      if (booking.status !== 'pending') {
+        throw new BadRequestException('You can only edit a booking while it is still pending.');
+      }
+      dto = { ...dto, quotedPrice: undefined };
+    }
 
     return this.prisma.booking.update({
       where: { id },
