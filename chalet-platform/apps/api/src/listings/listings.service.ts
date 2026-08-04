@@ -205,6 +205,13 @@ export class ListingsService {
       orderBy: { createdAt: 'desc' },
     });
   }
+    adminGetReviewsForListing(listingId: string) {
+    return this.prisma.review.findMany({
+      where: { listingId },
+      include: { user: { select: { fullName: true, email: true, phone: true } } },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 
   async deleteReview(id: string) {
     const review = await this.prisma.review.findUnique({ where: { id } });
