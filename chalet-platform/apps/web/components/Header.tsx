@@ -30,6 +30,7 @@ export function Header() {
               <a href="/listing-requests" className="text-ink/70 hover:text-ink">Listing requests</a>
               <a href="/listings" className="text-ink/70 hover:text-ink">Listings</a>
               <a href="/bookings" className="text-ink/70 hover:text-ink">Bookings</a>
+              <a href="/reviews" className="text-ink/70 hover:text-ink">Reviews</a>
               <button onClick={logout} className="text-ink/70 hover:text-ink">Log out</button>
             </>
           )}
