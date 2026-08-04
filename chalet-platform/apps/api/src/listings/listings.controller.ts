@@ -18,12 +18,14 @@ export class ListingsController {
     @Query('guests') guests?: string,
     @Query('minPrice') minPrice?: string,
     @Query('maxPrice') maxPrice?: string,
+    @Query('search') search?: string,
   ) {
     return this.service.findAll({
       region,
       guests: guests ? Number(guests) : undefined,
       minPrice: minPrice ? Number(minPrice) : undefined,
       maxPrice: maxPrice ? Number(maxPrice) : undefined,
+      search,
     });
   }
 
