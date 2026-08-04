@@ -60,7 +60,7 @@ export function Header() {
                       <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-ink/10 bg-white py-1 shadow-lg">
                         {links.map((l) => (
                           
-                            key={l.href}
+                            <a key={l.href}
                             href={l.href}
                             onClick={() => setMenuOpen(false)}
                             className="block px-4 py-2 text-sm text-ink/70 hover:bg-sand hover:text-ink"
