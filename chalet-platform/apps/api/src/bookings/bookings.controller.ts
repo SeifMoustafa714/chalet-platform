@@ -56,9 +56,13 @@ export class BookingsController {
   }
 
   @Patch(':id')
-  @Roles(Role.ADMIN)
-  adminUpdate(@Param('id') id: string, @Body() body: unknown) {
+  @Roles(Role.USER, Role.BROKER, Role.ADMIN)
+  update(
+    @Param('id') id: string,
+    @CurrentUser() requester: { userId: string; role: string },
+    @Body() body: unknown,
+  ) {
     const dto = AdminUpdateBookingSchema.parse(body);
-    return this.service.adminUpdate(id, dto);
+    return this.service.update(id, requester, dto);
   }
 }
