@@ -94,6 +94,13 @@ export class ListingsController {
     return this.service.getReviews(id);
   }
 
+  @Get(':id/reviews/admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.ADMIN)
+  getReviewsAdmin(@Param('id') id: string) {
+    return this.service.adminGetReviewsForListing(id);
+  }
+
   @Post(':id/reviews')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.USER, Role.BROKER, Role.ADMIN)
