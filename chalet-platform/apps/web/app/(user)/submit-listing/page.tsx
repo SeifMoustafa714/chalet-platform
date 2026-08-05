@@ -14,8 +14,20 @@ export default function SubmitListingPage() {
   });
   const [amenities, setAmenities] = useState<string[]>([]);
   const [images, setImages] = useState<string[]>([]);
+  const [imageInput, setImageInput] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  function addImage() {
+    if (imageInput.trim()) {
+      setImages((prev) => [...prev, imageInput.trim()]);
+      setImageInput('');
+    }
+  }
+
+  function removeImage(i: number) {
+    setImages((prev) => prev.filter((_, idx) => idx !== i));
+  }
 
   function toggleAmenity(a: string) {
     setAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
@@ -98,10 +110,24 @@ export default function SubmitListingPage() {
 
       <div className="rounded-lg border border-dashed border-ink/20 bg-white p-4">
         <p className="text-sm text-ink/60">
-          Paste a direct image link (ending in .jpg/.png) — copy it from the actual photo, not a search results page.
+          Add one or more direct image links (ending in .jpg/.png) — copy from the actual photo, not a search results page.
         </p>
-        <input placeholder="Image URL" className={`${inputClass} mt-2`}
-          onBlur={(e) => e.target.value && setImages([e.target.value])} />
+        <div className="mt-2 flex gap-2">
+          <input placeholder="Image URL" className={inputClass}
+            value={imageInput} onChange={(e) => setImageInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addImage(); } }} />
+          <button type="button" onClick={addImage} className="btn-primary whitespace-nowrap">Add</button>
+        </div>
+        {images.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {images.map((img, i) => (
+              <li key={i} className="flex items-center justify-between text-sm text-ink/60">
+                <span className="truncate">{img}</span>
+                <button type="button" onClick={() => removeImage(i)} className="ml-2 text-bougainvillea">Remove</button>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {error && <p className="text-sm text-bougainvillea">{error}</p>}
