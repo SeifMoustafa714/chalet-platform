@@ -94,7 +94,18 @@ export default function HomePage() {
 
       <div className="pt-6">
         {isLoading ? (
-          <p className="text-ink/60">Loading…</p>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="overflow-hidden rounded-xl border border-ink/10 bg-white">
+                <div className="skeleton h-48 w-full" />
+                <div className="space-y-2 p-4">
+                  <div className="skeleton h-5 w-3/4" />
+                  <div className="skeleton h-4 w-1/2" />
+                  <div className="skeleton h-4 w-1/3" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : listings?.length === 0 ? (
           <p className="text-ink/60">
             {hasFilters ? 'No chalets match those filters — try widening your search.' : 'No listings yet — check back soon.'}
