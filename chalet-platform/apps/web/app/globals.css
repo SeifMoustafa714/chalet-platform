@@ -69,6 +69,33 @@ body {
   height: 48px;
 }
 
+/* Consistent focus state across every input/textarea/select in the app,
+   without needing to touch every form's className individually. */
+input:not([type='checkbox']):not([type='radio']),
+textarea,
+select {
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+input:not([type='checkbox']):not([type='radio']):focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #0E7C86;
+  box-shadow: 0 0 0 3px rgba(14, 124, 134, 0.15);
+}
+
+/* Skeleton loading shimmer */
+.skeleton {
+  background: linear-gradient(90deg, #E3DCC9 25%, #EDE7D8 37%, #E3DCC9 63%);
+  background-size: 400% 100%;
+  animation: skeleton-shimmer 1.4s ease infinite;
+  border-radius: 0.5rem;
+}
+@keyframes skeleton-shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
 /* Listing card image container — written as plain CSS (not Tailwind utilities)
    so it can't be affected by any utility-generation issues. */
 .listing-image-wrap {
