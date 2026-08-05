@@ -34,6 +34,8 @@ export default function EditListingPage({ params }: { params: { id: string } }) 
   const { data: reviews, mutate: mutateReviews } = useSWR<AdminReview[]>(`/listings/${params.id}/reviews/admin`, fetcher);
   const [form, setForm] = useState<any>(null);
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [imageInput, setImageInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [busyReviewId, setBusyReviewId] = useState<string | null>(null);
@@ -49,9 +51,9 @@ export default function EditListingPage({ params }: { params: { id: string } }) 
         contactPhone: listing.contactPhone ?? '',
         basePrice: listing.pricing?.basePrice ?? '',
         weekendPrice: listing.pricing?.weekendPrice ?? '',
-        imageUrl: listing.images[0] ?? '',
       });
       setAmenities(listing.amenities ?? []);
+      setImages(listing.images ?? []);
     }
   }, [listing]);
 
@@ -59,6 +61,17 @@ export default function EditListingPage({ params }: { params: { id: string } }) 
 
   function toggleAmenity(a: string) {
     setAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+  }
+
+  function addImage() {
+    if (imageInput.trim()) {
+      setImages((prev) => [...prev, imageInput.trim()]);
+      setImageInput('');
+    }
+  }
+
+  function removeImage(i: number) {
+    setImages((prev) => prev.filter((_, idx) => idx !== i));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -72,7 +85,7 @@ export default function EditListingPage({ params }: { params: { id: string } }) 
         location: form.location,
         region: form.region,
         maxGuests: Number(form.maxGuests),
-        images: form.imageUrl ? [form.imageUrl] : undefined,
+        images,
         amenities,
         contactPhone: form.contactPhone || undefined,
         basePrice: form.basePrice ? Number(form.basePrice) : undefined,
@@ -150,8 +163,25 @@ export default function EditListingPage({ params }: { params: { id: string } }) 
           </div>
         </div>
 
-        <input className={inputClass} value={form.imageUrl}
-          onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
+        <div className="rounded-lg border border-dashed border-ink/20 bg-white p-4">
+          <p className="text-sm text-ink/60">Photos</p>
+          <div className="mt-2 flex gap-2">
+            <input placeholder="Image URL" className={inputClass}
+              value={imageInput} onChange={(e) => setImageInput(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addImage(); } }} />
+            <button type="button" onClick={addImage} className="btn-primary whitespace-nowrap">Add</button>
+          </div>
+          {images.length > 0 && (
+            <ul className="mt-3 space-y-1">
+              {images.map((img, i) => (
+                <li key={i} className="flex items-center justify-between text-sm text-ink/60">
+                  <span className="truncate">{img}</span>
+                  <button type="button" onClick={() => removeImage(i)} className="ml-2 text-bougainvillea">Remove</button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
 
         {error && <p className="text-sm text-bougainvillea">{error}</p>}
 
