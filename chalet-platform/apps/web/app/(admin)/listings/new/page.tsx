@@ -10,14 +10,27 @@ export default function NewListingPage() {
   const router = useRouter();
   const [form, setForm] = useState({
     title: '', description: '', location: '', region: REGIONS[0],
-    maxGuests: 4, basePrice: '', weekendPrice: '', imageUrl: '', contactPhone: '',
+    maxGuests: 4, basePrice: '', weekendPrice: '', contactPhone: '',
   });
   const [amenities, setAmenities] = useState<string[]>([]);
+  const [images, setImages] = useState<string[]>([]);
+  const [imageInput, setImageInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   function toggleAmenity(a: string) {
     setAmenities((prev) => prev.includes(a) ? prev.filter((x) => x !== a) : [...prev, a]);
+  }
+
+  function addImage() {
+    if (imageInput.trim()) {
+      setImages((prev) => [...prev, imageInput.trim()]);
+      setImageInput('');
+    }
+  }
+
+  function removeImage(i: number) {
+    setImages((prev) => prev.filter((_, idx) => idx !== i));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -31,7 +44,7 @@ export default function NewListingPage() {
         location: form.location,
         region: form.region,
         maxGuests: Number(form.maxGuests),
-        images: [form.imageUrl],
+        images,
         amenities,
         contactPhone: form.contactPhone || undefined,
         basePrice: Number(form.basePrice),
@@ -72,7 +85,7 @@ export default function NewListingPage() {
       <input required type="number" placeholder="Max guests" className={inputClass}
         value={form.maxGuests} onChange={(e) => setForm({ ...form, maxGuests: Number(e.target.value) })} />
 
-      <input required placeholder="Contact phone (for WhatsApp button)" className={inputClass}
+      <input required placeholder="Contact phone (internal reference only)" className={inputClass}
         value={form.contactPhone} onChange={(e) => setForm({ ...form, contactPhone: e.target.value })} />
 
       <div className="flex gap-4">
@@ -100,8 +113,25 @@ export default function NewListingPage() {
         </div>
       </div>
 
-      <input required placeholder="Image URL (direct link)" className={inputClass}
-        value={form.imageUrl} onChange={(e) => setForm({ ...form, imageUrl: e.target.value })} />
+      <div className="rounded-lg border border-dashed border-ink/20 bg-white p-4">
+        <p className="text-sm text-ink/60">Add one or more direct image links.</p>
+        <div className="mt-2 flex gap-2">
+          <input placeholder="Image URL" className={inputClass}
+            value={imageInput} onChange={(e) => setImageInput(e.target.value)}
+            onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addImage(); } }} />
+          <button type="button" onClick={addImage} className="btn-primary whitespace-nowrap">Add</button>
+        </div>
+        {images.length > 0 && (
+          <ul className="mt-3 space-y-1">
+            {images.map((img, i) => (
+              <li key={i} className="flex items-center justify-between text-sm text-ink/60">
+                <span className="truncate">{img}</span>
+                <button type="button" onClick={() => removeImage(i)} className="ml-2 text-bougainvillea">Remove</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       {error && <p className="text-sm text-bougainvillea">{error}</p>}
 
