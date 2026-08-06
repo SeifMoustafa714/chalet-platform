@@ -14,7 +14,9 @@ export function ListingCard({ listing }: { listing: Listing }) {
           <Image src={listing.images[0]} alt={listing.title} fill className="object-cover" />
         )}
         {listing.verifiedFlag && (
-          <span className="badge-verified absolute left-3 top-3">✓ Verified</span>
+          <span className="badge-verified absolute left-3 top-3" title="Reviewed and approved by our team.">
+            ✓ Verified
+          </span>
         )}
       </div>
       <div className="p-4">
