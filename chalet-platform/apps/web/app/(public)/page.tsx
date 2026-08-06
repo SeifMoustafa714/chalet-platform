@@ -90,7 +90,28 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-4 rounded-lg border border-ink/10 bg-white p-4">
+      <div className="mt-10">
+        <h2 className="text-center font-display text-2xl font-medium text-ink">How Coastly works</h2>
+        <div className="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-3">
+          <div className="text-center">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-marina font-display text-lg text-white">1</div>
+            <p className="mt-3 font-medium text-ink">Browse verified chalets</p>
+            <p className="mt-1 text-sm text-ink/60">Every listing here was checked by our team before it went live.</p>
+          </div>
+          <div className="text-center">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-marina font-display text-lg text-white">2</div>
+            <p className="mt-3 font-medium text-ink">Send a booking request</p>
+            <p className="mt-1 text-sm text-ink/60">We confirm availability and the final price with the host directly.</p>
+          </div>
+          <div className="text-center">
+            <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-marina font-display text-lg text-white">3</div>
+            <p className="mt-3 font-medium text-ink">Pay securely via InstaPay</p>
+            <p className="mt-1 text-sm text-ink/60">Nothing's charged until your booking is confirmed.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-10 rounded-lg border border-ink/10 bg-white p-4">
         <div className="flex flex-wrap gap-3">
           <input
             placeholder="Search by name or location…"
