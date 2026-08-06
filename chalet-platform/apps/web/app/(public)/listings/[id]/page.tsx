@@ -53,7 +53,11 @@ export default function ListingDetailPage({ params }: { params: { id: string } }
         <ImageGallery images={listing.images} alt={listing.title} />
 
         <div>
-          {listing.verifiedFlag && <span className="badge-verified">✓ Verified</span>}
+          {listing.verifiedFlag && (
+          <span className="badge-verified" title="This listing was reviewed and approved by our team before publishing.">
+            ✓ Verified
+          </span>
+        )}
           <h1 className="mt-2 font-display text-3xl font-medium text-ink">{listing.title}</h1>
           <p className="text-ink/60">{listing.location} · up to {listing.maxGuests} guests</p>
         </div>
