@@ -38,8 +38,17 @@ export default function HomePage() {
 
   return (
     <div>
-      <section className="-mx-6 -mt-8 bg-gradient-to-b from-marina to-marina-deep px-6 pb-16 pt-14 text-sand">
-        <div className="mx-auto max-w-3xl text-center">
+      <section className="relative -mx-6 -mt-8 overflow-hidden bg-gradient-to-b from-marina via-marina to-marina-deep px-6 pb-20 pt-14 text-sand">
+        <div className="hero-sun-glow pointer-events-none absolute inset-0" />
+
+        <svg className="hero-wave-drift pointer-events-none absolute bottom-0 left-0 w-[130%] opacity-20" viewBox="0 0 1200 120" preserveAspectRatio="none">
+          <path d="M0,60 C200,110 400,10 600,60 C800,110 1000,10 1200,60 L1200,120 L0,120 Z" fill="#EDE7D8" />
+        </svg>
+        <svg className="hero-wave-drift pointer-events-none absolute bottom-0 left-0 w-[130%] opacity-10" viewBox="0 0 1200 120" preserveAspectRatio="none" style={{ animationDelay: '-9s' }}>
+          <path d="M0,80 C300,20 500,120 800,60 C1000,20 1100,90 1200,70 L1200,120 L0,120 Z" fill="#D9A441" />
+        </svg>
+
+        <div className="hero-fade-in relative mx-auto max-w-3xl text-center">
           <p className="font-mono text-xs uppercase tracking-[0.2em] text-sand/70">
             North Coast · Ain Sokhna · Marsa Matrouh · Sharm El Sheikh
           </p>
@@ -56,6 +65,30 @@ export default function HomePage() {
       <svg className="wave-divider -mt-1" viewBox="0 0 1200 48" preserveAspectRatio="none">
         <path d="M0,24 C150,48 350,0 600,24 C850,48 1050,0 1200,24 L1200,48 L0,48 Z" fill="#EDE7D8" />
       </svg>
+
+      <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex items-start gap-3 rounded-lg border border-ink/10 bg-white p-4">
+          <span className="text-xl">✓</span>
+          <div>
+            <p className="font-medium text-ink">Every listing reviewed</p>
+            <p className="text-sm text-ink/60">Admin-checked before it ever goes public.</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3 rounded-lg border border-ink/10 bg-white p-4">
+          <span className="text-xl">🔒</span>
+          <div>
+            <p className="font-medium text-ink">Secure InstaPay payments</p>
+            <p className="text-sm text-ink/60">Nothing charged until your booking is confirmed.</p>
+          </div>
+        </div>
+        <div className="flex items-start gap-3 rounded-lg border border-ink/10 bg-white p-4">
+          <span className="text-xl">★</span>
+          <div>
+            <p className="font-medium text-ink">Real reviews only</p>
+            <p className="text-sm text-ink/60">Only confirmed guests can leave a rating.</p>
+          </div>
+        </div>
+      </div>
 
       <div className="mt-4 rounded-lg border border-ink/10 bg-white p-4">
         <div className="flex flex-wrap gap-3">
