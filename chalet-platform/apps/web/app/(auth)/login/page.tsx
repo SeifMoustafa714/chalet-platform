@@ -18,7 +18,12 @@ function LoginForm() {
       const { data } = await api.post('/auth/login', { email, password });
       localStorage.setItem('accessToken', data.accessToken);
       localStorage.setItem('refreshToken', data.refreshToken);
-      window.location.href = redirect || '/';
+      if (redirect) {
+        window.location.href = redirect;
+      } else {
+        const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
+        window.location.href = payload.role === 'ADMIN' ? '/dashboard' : '/';
+      }
     } catch {
       setError('Invalid email or password.');
       setPassword('');
