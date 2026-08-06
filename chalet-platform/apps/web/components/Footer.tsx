@@ -25,6 +25,7 @@ export function Footer() {
           <div className="text-sm text-ink/60">
             <p className="mb-2 font-medium text-ink/80">Coastly</p>
             <ul className="space-y-1">
+              <li><a href="/about" className="hover:text-ink">About</a></li>
               <li><a href="/login" className="hover:text-ink">Log in</a></li>
               <li><a href="/register" className="hover:text-ink">Sign up</a></li>
               <li><a href="/submit-listing" className="hover:text-ink">List your chalet</a></li>
