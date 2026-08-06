@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { CurrentUser, getCurrentUser, logout } from '../lib/api';
 
 const ADMIN_LINKS = [
+  { href: '/dashboard', label: 'Dashboard' },
   { href: '/listing-requests', label: 'Listing requests' },
   { href: '/listings', label: 'Listings' },
   { href: '/bookings', label: 'Bookings' },
