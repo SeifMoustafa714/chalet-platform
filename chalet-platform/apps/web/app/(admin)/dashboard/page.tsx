@@ -39,13 +39,11 @@ export default function AdminDashboardPage() {
     },
   ];
 
-  return (
-    <div>
+  return <div>
       <h1 className="mb-6 font-display text-2xl font-medium text-ink">Dashboard</h1>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {cards.map((c) => (
-          
-            key={c.label}
+          <a key={c.label}
             href={c.href}
             className="block rounded-xl border border-ink/10 bg-white p-5 transition hover:shadow-md"
           >
@@ -67,6 +65,5 @@ export default function AdminDashboardPage() {
           <a href="/bookings" className="rounded-lg border border-ink/20 px-4 py-2 text-ink/70 hover:text-ink">Manage bookings</a>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 }
