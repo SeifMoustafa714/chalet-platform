@@ -11,9 +11,11 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [needsVerification, setNeedsVerification] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setNeedsVerification(false);
     try {
       const { data } = await api.post('/auth/login', { email, password });
       localStorage.setItem('accessToken', data.accessToken);
@@ -24,11 +26,18 @@ function LoginForm() {
         const payload = JSON.parse(atob(data.accessToken.split('.')[1]));
         window.location.href = payload.role === 'ADMIN' ? '/dashboard' : '/';
       }
-    } catch {
-      setError('Invalid email or password.');
+    } catch (err: any) {
+      const msg = err?.response?.data?.message;
+      if (typeof msg === 'string' && msg.toLowerCase().includes('verify')) {
+        setNeedsVerification(true);
+      } else {
+        setError('Invalid email or password.');
+      }
       setPassword('');
     }
   }
+
+  const verifyUrl = `/verify-email?email=${encodeURIComponent(email)}${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`;
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-sm space-y-4">
@@ -60,7 +69,17 @@ function LoginForm() {
 
       {error && <p className="text-sm text-bougainvillea">{error}</p>}
 
+      {needsVerification && (
+        <p className="rounded-lg bg-sun/20 p-3 text-sm text-ink/70">
+          Please verify your email first. <a href={verifyUrl} className="text-marina">Enter your code →</a>
+        </p>
+      )}
+
       <button className="btn-primary w-full text-center">Log in</button>
+
+      <p className="text-center text-sm text-ink/60">
+        <a href="/forgot-password" className="text-marina">Forgot password?</a>
+      </p>
 
       <p className="text-center text-sm text-ink/60">
         No account yet?{' '}
