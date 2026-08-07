@@ -17,10 +17,9 @@ function RegisterForm() {
     setSubmitting(true);
     setError(null);
     try {
-      const { data } = await api.post('/auth/register', form);
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-      window.location.href = redirect || '/';
+      await api.post('/auth/register', form);
+      const verifyUrl = `/verify-email?email=${encodeURIComponent(form.email)}${redirect ? `&redirect=${encodeURIComponent(redirect)}` : ''}`;
+      window.location.href = verifyUrl;
     } catch (err: any) {
       const msg = err?.response?.data?.message;
       setError(Array.isArray(msg) ? msg.join(' · ') : msg ?? 'Could not create account. Try a different email.');
