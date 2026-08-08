@@ -32,7 +32,8 @@ if (typeof window !== 'undefined') {
     (res) => res,
     async (error) => {
       const original = error.config;
-      if (error.response?.status === 401 && !original._retry) {
+      const isAuthEndpoint = typeof original.url === 'string' && original.url.includes('/auth/');
+      if (error.response?.status === 401 && !original._retry && !isAuthEndpoint) {
         original._retry = true;
         if (!refreshPromise) refreshPromise = refreshAccessToken();
         const newToken = await refreshPromise;
