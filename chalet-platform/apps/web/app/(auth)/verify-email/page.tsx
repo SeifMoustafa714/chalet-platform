@@ -39,9 +39,12 @@ function VerifyEmailForm() {
   async function handleResend() {
     setResending(true);
     setResendMessage(null);
+    setError(null);
     try {
       await api.post('/auth/resend-otp', { email, purpose: 'verify' });
       setResendMessage('A new code has been sent to your email.');
+    } catch (err: any) {
+      setError(err?.response?.data?.message ?? 'Could not send the code. Please try again in a moment.');
     } finally {
       setResending(false);
     }
