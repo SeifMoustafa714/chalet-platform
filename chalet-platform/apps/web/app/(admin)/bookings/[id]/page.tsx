@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
-import { api, fetcher } from '../../../../lib/api';
+import { api, fetcher, whatsappLink } from '../../../../lib/api';
 
 interface AdminBookingDetail {
   id: string;
@@ -13,9 +13,11 @@ interface AdminBookingDetail {
   status: 'pending' | 'confirmed' | 'rejected' | 'cancelled';
   quotedPrice?: string;
   adminNotes?: string;
-  listing: { title: string; location: string };
+  createdAt: string;
+  updatedAt: string;
+  listing: { id: string; title: string; location: string };
   user: { fullName: string; email: string; phone?: string };
-  payment?: { id: string; method: string; transactionRef: string; amount: string; status: string };
+  payment?: { id: string; method: string; transactionRef: string; amount: string; status: string; createdAt: string; verifiedAt?: string };
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -33,6 +35,13 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
   const [editing, setEditing] = useState(false);
   const [editDraft, setEditDraft] = useState({ checkIn: '', checkOut: '', guests: 1 });
+
+  const [notes, setNotes] = useState('');
+  const [savingNotes, setSavingNotes] = useState(false);
+
+  useEffect(() => {
+    if (booking) setNotes(booking.adminNotes ?? '');
+  }, [booking]);
 
   if (!booking) return <p className="text-ink/60">Loading…</p>;
 
@@ -89,6 +98,16 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
     }
   }
 
+  async function saveNotes() {
+    setSavingNotes(true);
+    try {
+      await api.patch(`/bookings/${params.id}`, { adminNotes: notes });
+      mutate();
+    } finally {
+      setSavingNotes(false);
+    }
+  }
+
   async function verifyPayment() {
     if (!booking?.payment) return;
     setBusy(true);
@@ -100,6 +119,17 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
     }
   }
 
+  const whatsappUrl = booking.user.phone
+    ? whatsappLink(booking.user.phone, `Hi ${booking.user.fullName}, this is Coastly regarding your booking for ${booking.listing.title}.`)
+    : null;
+
+  const timeline = [
+    { label: 'Request submitted', at: booking.createdAt },
+    ...(booking.status !== 'pending' ? [{ label: `Status: ${booking.status}`, at: booking.updatedAt }] : []),
+    ...(booking.payment ? [{ label: 'Payment submitted', at: booking.payment.createdAt }] : []),
+    ...(booking.payment?.verifiedAt ? [{ label: 'Payment verified', at: booking.payment.verifiedAt }] : []),
+  ].sort((a, b) => new Date(a.at).getTime() - new Date(b.at).getTime());
+
   return (
     <div className="max-w-xl space-y-5">
       <button onClick={() => router.push('/bookings')} className="text-sm text-marina">← Back to bookings</button>
@@ -108,7 +138,10 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         <div>
           <p className="font-mono text-xs text-ink/40">Booking #{booking.id.slice(0, 8)}</p>
           <h1 className="font-display text-2xl font-medium text-ink">{booking.listing.title}</h1>
-          <p className="text-sm text-ink/60">{booking.listing.location}</p>
+          <p className="text-sm text-ink/60">
+            {booking.listing.location} ·{' '}
+            <a href={`/listings/${booking.listing.id}/edit`} className="text-marina">View listing →</a>
+          </p>
         </div>
         <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[booking.status]}`}>
           {isConfirmedAndPaid ? 'confirmed ✓' : booking.status}
@@ -116,8 +149,15 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
       </div>
 
       <div className="rounded-lg border border-ink/10 bg-white p-4">
-        <p className="font-medium text-ink">{booking.user.fullName}</p>
-        <p className="text-sm text-ink/60">{booking.user.email}{booking.user.phone ? ` · ${booking.user.phone}` : ''}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-medium text-ink">{booking.user.fullName}</p>
+            <p className="text-sm text-ink/60">{booking.user.email}{booking.user.phone ? ` · ${booking.user.phone}` : ''}</p>
+          </div>
+          {whatsappUrl && (
+            <a href={whatsappUrl} className="btn-accent text-sm">Message on WhatsApp</a>
+          )}
+        </div>
       </div>
 
       <div className="rounded-lg border border-ink/10 bg-white p-4">
@@ -147,20 +187,6 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         )}
       </div>
 
-      {booking.status === 'pending' && (
-        <div className="rounded-lg border border-ink/10 bg-white p-4">
-          <label className="block text-sm text-ink/70">
-            Quoted price (EGP)
-            <input className="mt-1 w-full rounded border border-ink/20 p-2"
-              value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
-          </label>
-          <div className="mt-3 flex gap-3">
-            <button disabled={busy} onClick={confirmBooking} className="btn-primary">Confirm</button>
-            <button disabled={busy} onClick={reject} className="btn-accent">Reject</button>
-          </div>
-        </div>
-      )}
-
       <div className="rounded-lg border border-ink/10 bg-white p-4">
         <h2 className="mb-2 text-sm font-medium text-ink/70">Price &amp; payment</h2>
         <p className="font-mono text-sm text-ink">
@@ -189,6 +215,46 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
       {isConfirmedAndPaid && (
         <p className="rounded-lg bg-marina/10 p-3 text-sm text-marina-deep">✓ Booking confirmed for the customer.</p>
       )}
+
+      {booking.status === 'pending' && (
+        <div className="rounded-lg border border-ink/10 bg-white p-4">
+          <label className="block text-sm text-ink/70">
+            Quoted price (EGP)
+            <input className="mt-1 w-full rounded border border-ink/20 p-2"
+              value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
+          </label>
+          <div className="mt-3 flex gap-3">
+            <button disabled={busy} onClick={confirmBooking} className="btn-primary">Confirm</button>
+            <button disabled={busy} onClick={reject} className="btn-accent">Reject</button>
+          </div>
+        </div>
+      )}
+
+      <div className="rounded-lg border border-ink/10 bg-white p-4">
+        <h2 className="mb-2 text-sm font-medium text-ink/70">Timeline</h2>
+        <ul className="space-y-1 text-sm text-ink/70">
+          {timeline.map((t, i) => (
+            <li key={i} className="flex justify-between">
+              <span>{t.label}</span>
+              <span className="font-mono text-xs text-ink/40">{new Date(t.at).toLocaleString()}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div className="rounded-lg border border-ink/10 bg-white p-4">
+        <h2 className="mb-2 text-sm font-medium text-ink/70">Admin notes (private, only visible to you)</h2>
+        <textarea
+          rows={3}
+          className="w-full rounded border border-ink/20 p-2 text-sm"
+          placeholder="e.g. guest asked for early check-in"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+        <button disabled={savingNotes} onClick={saveNotes} className="mt-2 rounded bg-marina px-3 py-1 text-sm text-white disabled:opacity-50">
+          {savingNotes ? 'Saving…' : 'Save notes'}
+        </button>
+      </div>
 
       {booking.status !== 'cancelled' && !editing && (
         <button disabled={busy} onClick={cancelBooking} className="text-sm text-bougainvillea disabled:opacity-50">
