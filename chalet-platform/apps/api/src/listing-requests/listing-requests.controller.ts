@@ -28,8 +28,11 @@ export class ListingRequestsController {
 
   @Get()
   @Roles(Role.ADMIN)
-  findAll(@Query('status') status?: 'pending_review' | 'approved' | 'rejected') {
-    return this.service.findAll(status);
+  findAll(
+    @Query('status') status?: 'pending_review' | 'approved' | 'rejected',
+    @Query('search') search?: string,
+  ) {
+    return this.service.findAll(status, search);
   }
 
   @Get(':id')
