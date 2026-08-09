@@ -27,8 +27,11 @@ export class BookingsController {
 
   @Get()
   @Roles(Role.ADMIN)
-  findAll(@Query('status') status?: 'pending' | 'confirmed' | 'rejected' | 'cancelled') {
-    return this.service.findAll(status);
+  findAll(
+    @Query('status') status?: 'pending' | 'confirmed' | 'rejected' | 'cancelled',
+    @Query('search') search?: string,
+  ) {
+    return this.service.findAll(status, search);
   }
 
   @Get(':id')
