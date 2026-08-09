@@ -20,9 +20,20 @@ export class ListingRequestsService {
     });
   }
 
-  findAll(status?: 'pending_review' | 'approved' | 'rejected') {
+  findAll(status?: 'pending_review' | 'approved' | 'rejected', search?: string) {
     return this.prisma.listingRequest.findMany({
-      where: status ? { status } : undefined,
+      where: {
+        status: status || undefined,
+        ...(search
+          ? {
+              OR: [
+                { title: { contains: search, mode: 'insensitive' } },
+                { location: { contains: search, mode: 'insensitive' } },
+                { user: { fullName: { contains: search, mode: 'insensitive' } } },
+              ],
+            }
+          : {}),
+      },
       orderBy: { createdAt: 'desc' },
       include: { user: { select: { id: true, fullName: true, email: true, role: true } } },
     });
