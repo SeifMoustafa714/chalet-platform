@@ -38,9 +38,20 @@ export class BookingsService {
     return booking;
   }
 
-  findAll(status?: 'pending' | 'confirmed' | 'rejected' | 'cancelled') {
+  findAll(status?: 'pending' | 'confirmed' | 'rejected' | 'cancelled', search?: string) {
     return this.prisma.booking.findMany({
-      where: status ? { status } : undefined,
+      where: {
+        status: status || undefined,
+        ...(search
+          ? {
+              OR: [
+                { user: { fullName: { contains: search, mode: 'insensitive' } } },
+                { user: { email: { contains: search, mode: 'insensitive' } } },
+                { listing: { title: { contains: search, mode: 'insensitive' } } },
+              ],
+            }
+          : {}),
+      },
       include: { listing: true, user: true, payment: true },
       orderBy: { createdAt: 'desc' },
     });
