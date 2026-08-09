@@ -88,7 +88,8 @@ export class BookingsService {
       if (booking.status !== 'pending') {
         throw new BadRequestException('You can only edit a booking while it is still pending.');
       }
-      dto = { ...dto, quotedPrice: undefined };
+      // customers can't set their own price or admin notes
+      dto = { ...dto, quotedPrice: undefined, adminNotes: undefined };
     }
 
     return this.prisma.booking.update({
@@ -98,6 +99,7 @@ export class BookingsService {
         checkOut: dto.checkOut ? new Date(dto.checkOut) : undefined,
         guests: dto.guests,
         quotedPrice: dto.quotedPrice,
+        adminNotes: dto.adminNotes,
       },
     });
   }
