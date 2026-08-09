@@ -161,23 +161,30 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
         </div>
       )}
 
-      {booking.status === 'confirmed' && !booking.payment && (
-        <p className="rounded-lg bg-sun/20 p-4 text-sm text-ink/70">
-          Quoted {booking.quotedPrice ? `${Number(booking.quotedPrice).toLocaleString()} EGP` : ''} · waiting for the customer to pay via InstaPay.
+      <div className="rounded-lg border border-ink/10 bg-white p-4">
+        <h2 className="mb-2 text-sm font-medium text-ink/70">Price &amp; payment</h2>
+        <p className="font-mono text-sm text-ink">
+          {booking.quotedPrice ? `${Number(booking.quotedPrice).toLocaleString()} EGP` : 'Not yet quoted'}
         </p>
-      )}
 
-      {booking.payment && (
-        <div className="rounded-lg bg-sand/60 p-4 font-mono text-sm">
-          InstaPay · ref {booking.payment.transactionRef} · {booking.payment.amount} EGP ·{' '}
-          <span className="font-sans font-medium">{booking.payment.status}</span>
-          {booking.payment.status === 'submitted' && (
-            <button disabled={busy} onClick={verifyPayment} className="ml-2 rounded bg-marina px-2 py-0.5 font-sans text-xs text-white">
-              Verify payment
-            </button>
-          )}
-        </div>
-      )}
+        {booking.payment ? (
+          <div className="mt-2 rounded bg-sand/60 p-2 font-mono text-sm">
+            InstaPay · ref {booking.payment.transactionRef} · {booking.payment.amount} EGP ·{' '}
+            <span className="font-sans font-medium">
+              {booking.payment.status === 'verified' ? 'Verified ✓' : 'Awaiting verification'}
+            </span>
+            {booking.payment.status === 'submitted' && (
+              <button disabled={busy} onClick={verifyPayment} className="ml-2 rounded bg-marina px-2 py-0.5 font-sans text-xs text-white">
+                Verify payment
+              </button>
+            )}
+          </div>
+        ) : (
+          <p className="mt-1 text-sm text-ink/50">
+            {booking.status === 'confirmed' ? 'Not paid yet — waiting for the customer to submit their InstaPay reference.' : 'No payment on this booking.'}
+          </p>
+        )}
+      </div>
 
       {isConfirmedAndPaid && (
         <p className="rounded-lg bg-marina/10 p-3 text-sm text-marina-deep">✓ Booking confirmed for the customer.</p>
