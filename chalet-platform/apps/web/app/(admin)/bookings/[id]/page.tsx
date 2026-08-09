@@ -38,7 +38,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
 
   const isConfirmedAndPaid = booking.status === 'confirmed' && booking.payment?.status === 'verified';
 
-  async function confirm() {
+  async function confirmBooking() {
     setBusy(true);
     try {
       await api.patch(`/bookings/${params.id}/confirm`, { quotedPrice: quotedPrice ? Number(quotedPrice) : undefined });
@@ -155,7 +155,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
               value={quotedPrice} onChange={(e) => setQuotedPrice(e.target.value)} />
           </label>
           <div className="mt-3 flex gap-3">
-            <button disabled={busy} onClick={confirm} className="btn-primary">Confirm</button>
+            <button disabled={busy} onClick={confirmBooking} className="btn-primary">Confirm</button>
             <button disabled={busy} onClick={reject} className="btn-accent">Reject</button>
           </div>
         </div>
