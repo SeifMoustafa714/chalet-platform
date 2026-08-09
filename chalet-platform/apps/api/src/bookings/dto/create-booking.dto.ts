@@ -19,5 +19,6 @@ export const AdminUpdateBookingSchema = z.object({
   checkOut: z.string().optional(),
   guests: z.number().int().positive().optional(),
   quotedPrice: z.number().positive().optional(),
+  adminNotes: z.string().optional(),
 });
 export type AdminUpdateBookingDto = z.infer<typeof AdminUpdateBookingSchema>;
