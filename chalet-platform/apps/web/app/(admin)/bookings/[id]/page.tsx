@@ -90,7 +90,7 @@ export default function AdminBookingDetailPage({ params }: { params: { id: strin
   }
 
   async function verifyPayment() {
-    if (!booking.payment) return;
+    if (!booking?.payment) return;
     setBusy(true);
     try {
       await api.patch(`/payments/${booking.payment.id}/verify`);
