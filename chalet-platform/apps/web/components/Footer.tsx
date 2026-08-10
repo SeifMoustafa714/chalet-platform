@@ -34,7 +34,9 @@ export function Footer() {
         </div>
 
         <p className="mt-8 border-t border-ink/10 pt-4 text-xs text-ink/40">
-          © {new Date().getFullYear()} Coastly. All listings are reviewed by our team before publishing.
+          © {new Date().getFullYear()} Coastly. All listings are reviewed by our team before publishing.{' '}
+          <a href="/terms" className="hover:text-ink/60">Terms</a> ·{' '}
+          <a href="/privacy" className="hover:text-ink/60">Privacy</a>
         </p>
       </div>
     </footer>
